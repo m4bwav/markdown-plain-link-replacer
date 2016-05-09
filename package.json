@@ -1,7 +1,7 @@
 {
   "name": "markdown-plain-link-replacer",
-  "version": "1.0.0",
-  "description": "Script to replace a text link (ie http://whatever) with the title at the links webpage.",
+  "version": "1.0.1",
+  "description": "Script to replace a text link (ie http://whatever) with the title at the links webpage in markdown.",
   "main": "./index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
