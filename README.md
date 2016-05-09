@@ -14,7 +14,9 @@ Installation is easiest through npm:
 **markdown-plain-link-replacer** can be included as reference.
 
 ```
-var linkReplacer = require('./index.js');
+var input = "  http://starwars.wikia.com/wiki/Bespin  "
+  , linkReplacer = require('./index.js')
+  ;
 
 linkReplacer.replacePlainLinks(input, function(newMarkdown){
 	console.log(newMarkdown);
@@ -34,7 +36,7 @@ $ markdown-plain-link-replacer --help
     $ markdown-plain-link-replacer "<markdown>"
 
   Example
-    $ markdown-plain-link-replacer "  http://starwars.wikia.com/wiki/Bespin  "'
+    $ markdown-plain-link-replacer "  http://starwars.wikia.com/wiki/Bespin  "
 ```
 
 
