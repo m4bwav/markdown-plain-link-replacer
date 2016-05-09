@@ -1,0 +1,36 @@
+{
+  "name": "markdown-plain-link-replacer",
+  "version": "1.0.0",
+  "description": "Script to replace a text link (ie http://whatever) with the title at the links webpage.",
+  "main": "./index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository":  { 
+	"type": "git",
+	"url": "https://github.com/m4bwav/markdown-plain-link-replacer.git"
+  },
+  "homepage": "https://github.com/m4bwav/markdown-plain-link-replacer",
+  "author": "Mark Rogers",
+  "keywords": ["markup", "html", "markdown"],
+  "tags": ["markup", "html", "markdown"],
+  "bin": "cli.js",
+  "files": [
+    "index.js",
+    "cli.js"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "request": "~2.72.0",
+    "cheerio": "~0.20.0",
+    "minimist": "~1.2.0",
+    "get-urls": "5.0.0",
+    "array-iterate": "1.0.0",
+    "is-url": "1.2.1",
+    "article-title": "1.0.2",
+    "get-title-at-url": "1.0.5",
+    "meow": "3.7.0",
+    "promise": "7.1.1",
+	"parse-domain": "0.2.1"
+  }
+}
