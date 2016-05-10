@@ -14,8 +14,8 @@ Installation is easiest through npm:
 **markdown-plain-link-replacer** can be included as reference.
 
 ```
-var input = "  http://starwars.wikia.com/wiki/Bespin  "
-  , linkReplacer = require('markdown-plain-link-replacer')
+var linkReplacer = require('markdown-plain-link-replacer')
+  , input = "  http://starwars.wikia.com/wiki/Bespin  "
   ;
 
 linkReplacer.replacePlainLinks(input, function(newMarkdown){
