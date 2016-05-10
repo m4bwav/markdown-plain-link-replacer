@@ -133,6 +133,10 @@ var getUrls = require('get-urls')
 	callback(markdown);
   }
 exports.replacePlainLinks = function(markdown, callback, options){
+	if(!markdown){
+		callback(markdown);
+	}
+	
 	var urls = getUrls(markdown)
 	  , lookupPromises = filterValidUrlsAndLookupTitles(urls, markdown)
 	  ;
