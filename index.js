@@ -135,6 +135,7 @@ var getUrls = require('get-urls')
 exports.replacePlainLinks = function(markdown, callback, options){
 	if(!markdown){
 		callback(markdown);
+		return;
 	}
 	
 	var urls = getUrls(markdown)
