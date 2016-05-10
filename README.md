@@ -19,6 +19,7 @@ var input = "  http://starwars.wikia.com/wiki/Bespin  "
   ;
 
 linkReplacer.replacePlainLinks(input, function(newMarkdown){
+  //newMarkdown: '  "[Bespin](http://starwars.wikia.com/wiki/Bespin)", *wikia.com*  '
 	console.log(newMarkdown);
 });
 ```
