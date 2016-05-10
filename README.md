@@ -15,7 +15,7 @@ Installation is easiest through npm:
 
 ```
 var input = "  http://starwars.wikia.com/wiki/Bespin  "
-  , linkReplacer = require('./index.js')
+  , linkReplacer = require('markdown-plain-link-replacer')
   ;
 
 linkReplacer.replacePlainLinks(input, function(newMarkdown){
