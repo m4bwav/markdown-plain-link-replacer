@@ -3,7 +3,6 @@
 var getUrls = require('get-urls')
   , iterate = require('array-iterate')
   , isUrl = require('is-url')
-  , articleTitle = require('article-title')
   , getTitleAtUrl = require('get-title-at-url')
   , Promise = require("Promise")
   , parseDomain = require("parse-domain")
