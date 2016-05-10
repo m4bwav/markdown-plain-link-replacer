@@ -15,11 +15,15 @@
   "keywords": [
     "markup",
     "html",
+    "source",
+    "title",
     "markdown"
   ],
   "tags": [
     "markup",
     "html",
+    "source",
+    "title",
     "markdown"
   ],
   "bin": "cli.js",
@@ -29,9 +33,6 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "request": "~2.72.0",
-    "cheerio": "~0.20.0",
-    "minimist": "~1.2.0",
     "get-urls": "5.0.0",
     "array-iterate": "1.0.0",
     "is-url": "1.2.1",
