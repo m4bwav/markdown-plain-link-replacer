@@ -6,166 +6,170 @@ var getUrls = require('get-urls')
   , getTitleAtUrl = require('get-title-at-url')
   , Promise = require("Promise")
   , parseDomain = require("parse-domain")
+	, he = require('he')
   , exports = module.exports = {}
   ;
 
- function replaceLinkAtPosition(markdown, urlTitleMarkdownPair, position){
+function replaceLinkAtPosition(markdown, urlTitleMarkdownPair, position) {
 	 var linkToReplace = urlTitleMarkdownPair.url
 	   , newLinkMarkdown = urlTitleMarkdownPair.titleMarkdown
-       , linkLength = linkToReplace.length
+		 , linkLength = linkToReplace.length
 	   , prefix = markdown.substring(0, position)
 	   , afterStartPosition = position + linkLength
 	   , postfix = markdown.substring(afterStartPosition, markdown.length)
 	   , result = prefix + newLinkMarkdown + postfix
 	   ;
-	 
+
 	 return result;
- }
-  function generateTitleMarkdown(url, title, source){
-	  return '"[' + title + '](' + url + ')", *' + source + '*';
-  }
-  function geneneratePromiseForTitleLookup(url, options){
-			 if(options.d && options.d.indexOf && options.d.indexOf("urlresponse")  !== -1){
-				 console.log("Creating promise to find url: " + url);
-			 }
-	  
-	 return new Promise(function(resolve, reject){
-		 
-		 getTitleAtUrl(url, function(title){
-			 if(options.d && options.d.indexOf && options.d.indexOf("urlresponse")  !== -1){
-				 console.log("title: " + title + " found for url: " + url);
-			 }
-			 
-			 if(!title){
-				 resolve();
-				 return;
-			 }
-			 
-			 var domainData = parseDomain(url)
-			   , source = domainData.domain + "." + domainData.tld
-			   , urlTitleMarkdownPair = {
-				 url: url,
-				 titleMarkdown: generateTitleMarkdown(url, title, source)
-			 };
-			 
-			 resolve(urlTitleMarkdownPair);
-		 });
-	  });
-	  
-	  
-  }
-  
-  function filterValidUrlsAndLookupTitles(urls, markdown, options){
-	  var titleLookupPromises = []
-	    , relookupFailure = false
+}
+
+function generateTitleMarkdown(url, title, source) {
+	return '"[' + title + '](' + url + ')", *' + source + '*';
+}
+
+function geneneratePromiseForTitleLookup(url, options) {
+	if (options.d && options.d.indexOf && options.d.indexOf("urlresponse") !== -1) {
+		console.log("Creating promise to find url: " + url);
+	}
+
+	 return new Promise(function (resolve, reject) {
+
+		getTitleAtUrl(url, function (title) {
+			if (options.d && options.d.indexOf && options.d.indexOf("urlresponse") !== -1) {
+				console.log("title: " + title + " found for url: " + url);
+			}
+
+			if (!title) {
+				resolve();
+				return;
+			}
+
+			var domainData = parseDomain(url)
+				, source = domainData.domain + "." + domainData.tld
+				, urlTitleMarkdownPair = {
+					url: url,
+					titleMarkdown: generateTitleMarkdown(url, title, source)
+				};
+
+			resolve(urlTitleMarkdownPair);
+		});
+	});
+
+
+}
+
+function filterValidUrlsAndLookupTitles(urls, markdown, options) {
+	var titleLookupPromises = []
+		, relookupFailure = false
 		, loweredMarkdown = markdown.toLowerCase()
 		;
-	  
+
 	iterate(urls, function (currentUrl) {
 		var urlIndexTracker = 0;
-		
-		if(options.d){
-			  var nextIndexOf = loweredMarkdown.indexOf(currentUrl, urlIndexTracker);
-			  if(nextIndexOf === -1){
+
+		if (options.d) {
+			var nextIndexOf = loweredMarkdown.indexOf(currentUrl, urlIndexTracker);
+			if (nextIndexOf === -1) {
 				console.log("\nCould not find url: " + currentUrl + " that was previously found in the markdown during parsing, urlIndexTracker: " + urlIndexTracker);
-			  }
+			}
 		}
-		while(loweredMarkdown.indexOf(currentUrl, urlIndexTracker) !== -1){
+		while (loweredMarkdown.indexOf(currentUrl, urlIndexTracker) !== -1) {
 			var currentUrlIndex = urlIndexTracker;
 			var currentUrlStart = loweredMarkdown.indexOf(currentUrl, currentUrlIndex);
 			urlIndexTracker = currentUrlStart + currentUrl.length;
-			
-			
-			if((currentUrlStart + currentUrl.length) < markdown.length){
+
+
+			if ((currentUrlStart + currentUrl.length) < markdown.length) {
 				var endOfPlusOneUrl = currentUrlStart + currentUrl.length + 1;
 				var urlPlusOneChar = markdown.substring(currentUrlStart, endOfPlusOneUrl);
-				
-				if(!urlPlusOneChar.endsWith(")") && isUrl(urlPlusOneChar)){
+
+				if (!urlPlusOneChar.endsWith(")") && isUrl(urlPlusOneChar)) {
 					continue;
 				}
-				
-				if(currentUrlStart > 2){
-					var precendingString = markdown.substring(currentUrlStart - 2, 2);
-					
-					if(precendingString === "]("){
+
+				if (currentUrlStart > 2) {
+					var positionTwoCharactersBack = currentUrlStart - 2;
+					var precendingString = markdown.substring(positionTwoCharactersBack, currentUrlStart);
+
+					if (precendingString === "](") {
 						continue;
 					}
 				}
-				
-				if(currentUrlStart > 3){
-					var precendingString = markdown.substring(currentUrlStart - 3, 3);
-					
-					if(precendingString === "]: "){
+
+				if (currentUrlStart > 3) {
+					var precendingString = markdown.substring(currentUrlStart - 3, currentUrlStart);
+
+					if (precendingString === "]: ") {
 						continue;
 					}
 				}
 			}
-			
+
 			var titleLookupPromise = geneneratePromiseForTitleLookup(currentUrl, options);
-			
+
 			titleLookupPromises.push(titleLookupPromise);
 			break;
 		}
 	});
-	
+
 	return titleLookupPromises;
-  }
-  function executeReplacePlainLinksWithTitles(urlTitleList, markdown, callback, options){
+}
+function executeReplacePlainLinksWithTitles(urlTitleList, markdown, callback, options) {
 	iterate(urlTitleList, function (urlTitleMarkdownPair) {
-		if(!urlTitleMarkdownPair){
+		if (!urlTitleMarkdownPair) {
 			return true;
 		}
-		
+
 		var currentUrl = urlTitleMarkdownPair.url
-		  , urlIndexTracker = 0
-		  ;
-		  
-		if(!currentUrl){
+			, urlIndexTracker = 0
+			;
+
+		if (!currentUrl) {
 			return true;
 		}
-		
-		if(options.d && options.d.indexOf && options.d.indexOf("replacement")  !== -1){
-	      console.log("Attempting to replace url: " + currentUrl);
-		  var nextIndexOf = markdown.indexOf(currentUrl, urlIndexTracker);
-		  console.log("Next index of url: " + currentUrl + " is at position: " + nextIndexOf + " during replacement");
+
+		if (options.d && options.d.indexOf && options.d.indexOf("replacement") !== -1) {
+			console.log("Attempting to replace url: " + currentUrl);
+			var nextIndexOf = markdown.indexOf(currentUrl, urlIndexTracker);
+			console.log("Next index of url: " + currentUrl + " is at position: " + nextIndexOf + " during replacement");
 		}
-		while(markdown.indexOf(currentUrl, urlIndexTracker) !== -1){
+		while (markdown.indexOf(currentUrl, urlIndexTracker) !== -1) {
 			var currentUrlIndex = urlIndexTracker;
 			var currentUrlStart = markdown.indexOf(currentUrl, currentUrlIndex);
-			 if(options.d && options.d.indexOf && options.d.indexOf("replacement")  !== -1){
-			  console.log("Looking for url during replacement: " + currentUrl + " after position: " + currentUrlIndex);
+			if (options.d && options.d.indexOf && options.d.indexOf("replacement") !== -1) {
+				console.log("Looking for url during replacement: " + currentUrl + " after position: " + currentUrlIndex);
 			}
-			if((currentUrlStart + currentUrl.length) < markdown.length){
+			if ((currentUrlStart + currentUrl.length) < markdown.length) {
 				var endOfPlusOneUrl = currentUrlStart + currentUrl.length + 1;
 				var urlPlusOneChar = markdown.substring(currentUrlStart, endOfPlusOneUrl);
-				
-				if(!urlPlusOneChar.endsWith(")") && isUrl(urlPlusOneChar)){
+
+				if (!urlPlusOneChar.endsWith(")") && isUrl(urlPlusOneChar)) {
 					urlIndexTracker = currentUrlStart + currentUrl.length;
-					if(options.d && options.d.indexOf && options.d.indexOf("replacement")  !== -1){
-					  console.log("Skipping replacement of url: " + currentUrl + " for short version of url.");
+					if (options.d && options.d.indexOf && options.d.indexOf("replacement") !== -1) {
+						console.log("Skipping replacement of url: " + currentUrl + " for short version of url.");
 					}
 					continue;
 				}
-				
-				if(currentUrlStart > 2){
-					var precendingString = markdown.substring(currentUrlStart - 2, 2);
-					
-					if(precendingString === "]("){
+
+				if (currentUrlStart > 2) {
+					var precendingString = markdown.substring(currentUrlStart - 2, currentUrlStart);
+
+					if (precendingString === "](") {
 						urlIndexTracker = currentUrlStart + currentUrl.length;
-						if(options.d && options.d.indexOf && options.d.indexOf("replacement")  !== -1){
-						  console.log("Skipping replacement of url: " + currentUrl + "  for ]( prefix.");
+						if (options.d && options.d.indexOf && options.d.indexOf("replacement") !== -1) {
+							console.log("Skipping replacement of url: " + currentUrl + "  for ]( prefix.");
 						}
 						continue;
 					}
 				}
-				
-				if(currentUrlStart > 3){
-					var precendingString = markdown.substring(currentUrlStart - 3, 3);
-					
-					if(precendingString === "]: "){
+
+				if (currentUrlStart > 3) {
+					var precendingString = markdown.substring(currentUrlStart - 3, currentUrlStart);
+
+					if (precendingString === "]: ") {
 						urlIndexTracker = currentUrlStart + currentUrl.length;
-						if(options.d && options.d.indexOf && options.d.indexOf("replacement")  !== -1){
-						  console.log("Skipping replacement of url: " + currentUrl + " for ]: prefix.");
+						if (options.d && options.d.indexOf && options.d.indexOf("replacement") !== -1) {
+							console.log("Skipping replacement of url: " + currentUrl + " for ]: prefix.");
 						}
 						continue;
 					}
@@ -175,66 +179,66 @@ var getUrls = require('get-urls')
 			urlIndexTracker = currentUrlStart + urlTitleMarkdownPair.titleMarkdown.length;
 		}
 	});
-	
+
 	callback(markdown);
-  }
-  
-  function getUrlsAndFilter(markdown, options){
-	var urls = getUrls(markdown, {stripWWW: false, stripFragment: false, normalizeProtocol: false, removeQueryParameters: []})
-	  , outputResults = []
-	  ;
-	  
-			if(options.d && options.d.indexOf && options.d.indexOf("urlread")  !== -1){
+}
+
+function getUrlsAndFilter(markdown, options) {
+	var urls = getUrls(markdown, { stripWWW: false, stripFragment: false, normalizeProtocol: false, removeQueryParameters: [] })
+		, outputResults = []
+		;
+
+	if (options.d && options.d.indexOf && options.d.indexOf("urlread") !== -1) {
 				console.log("getUrls output:");
 				console.log(urls);
-			}
+	}
 	iterate(urls, function (currentUrl) {
-		if(!currentUrl){
+		if (!currentUrl) {
 			return true;
 		}
-		
-		if(currentUrl.endsWith(")") && currentUrl.indexOf("(") === -1){
+
+		if (currentUrl.endsWith(")") && currentUrl.indexOf("(") === -1) {
 			currentUrl = currentUrl.substring(0, currentUrl.length - 1);
-			if(options.d && options.d.indexOf && options.d.indexOf("urlread")  !== -1){
+			if (options.d && options.d.indexOf && options.d.indexOf("urlread") !== -1) {
 				console.log("new url: " + currentUrl);
-			  }
+			}
 		}
-		
-		if(currentUrl.toLowerCase().endsWith(".jpg")){
-			if(options.d && options.d.indexOf && options.d.indexOf("urlread")  !== -1){
+
+		if (currentUrl.toLowerCase().endsWith(".jpg")) {
+			if (options.d && options.d.indexOf && options.d.indexOf("urlread") !== -1) {
 				console.log("skipping url: " + currentUrl);
 			}
 			return true;
 		}
-		if(outputResults.indexOf(currentUrl) === -1){
-			
-			if(options.d && options.d.indexOf && options.d.indexOf("urlread")  !== -1){
+		if (outputResults.indexOf(currentUrl) === -1) {
+
+			if (options.d && options.d.indexOf && options.d.indexOf("urlread") !== -1) {
 				console.log("pushing url: " + currentUrl);
 			}
-		  outputResults.push(currentUrl.toLowerCase());
+			outputResults.push(currentUrl.toLowerCase());
 		}
 	});
-	  
-	  return outputResults;
-  }
-exports.replacePlainLinks = function(markdown, callback, options){
-	if(!markdown){
+
+	return outputResults;
+}
+exports.replacePlainLinks = function (markdown, callback, options) {
+	if (!markdown) {
 		callback(markdown);
 		return;
 	}
-	
-	var urls = getUrlsAndFilter(markdown, options)
-	  , lookupPromises = filterValidUrlsAndLookupTitles(urls, markdown, options)
-	  ;
-	
-	
+
+	var decodedMarkdown = he.decode(markdown);
+	var urls = getUrlsAndFilter(decodedMarkdown, options)
+		, lookupPromises = filterValidUrlsAndLookupTitles(urls, decodedMarkdown, options)
+		;
+
+
 	Promise.all(lookupPromises)
-	  .then(function(res){
-			  console.log(res);
-			if(options.d && options.d.indexOf && options.d.indexOf("promisecomplete")  !== -1){
-			  console.log(res);
+		.then(function (res) {
+			if (options.d && options.d.indexOf && options.d.indexOf("promisecomplete") !== -1) {
+				console.log(res);
 			}
-		  executeReplacePlainLinksWithTitles(res, markdown, callback, options);
-	  });
-	
+			executeReplacePlainLinksWithTitles(res, decodedMarkdown, callback, options);
+		});
+
 };

@@ -36,9 +36,10 @@
     "get-urls": "5.0.0",
     "array-iterate": "1.0.0",
     "is-url": "1.2.1",
-    "get-title-at-url": "1.0.5",
+    "get-title-at-url": "1.0.6",
     "meow": "3.7.0",
     "promise": "7.1.1",
-    "parse-domain": "0.2.1"
+    "parse-domain": "0.2.1",
+    "he": "1.1.0"
   }
 }
