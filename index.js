@@ -227,6 +227,10 @@ exports.replacePlainLinks = function (markdown, callback, options) {
 		return;
 	}
 
+	if(!options){
+		options = {};
+	}
+	
 	var decodedMarkdown = he.decode(markdown);
 	var urls = getUrlsAndFilter(decodedMarkdown, options)
 		, lookupPromises = filterValidUrlsAndLookupTitles(urls, decodedMarkdown, options)
