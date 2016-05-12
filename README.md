@@ -1,6 +1,7 @@
 # markdown-plain-link-replacer
 
 [![Dependency Status](https://david-dm.org/m4bwav/markdown-plain-link-replacer.svg)](https://david-dm.org/m4bwav/markdown-plain-link-replacer)
+[![Known Vulnerabilities](https://snyk.io/test/npm/markdown-plain-link-replacer/badge.svg?style=flat-square)](https://snyk.io/test/npm/markdown-plain-link-replacer)
 
 
 Script to replace a plain text link (ie http://whatever) with the title at the link's webpage in markdown.
