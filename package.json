@@ -11,6 +11,9 @@
     "url": "https://github.com/m4bwav/markdown-plain-link-replacer.git"
   },
   "homepage": "https://github.com/m4bwav/markdown-plain-link-replacer",
+  "bugs": {
+    "url": "http://github.com/m4bwav/markdown-plain-link-replacer/issues"
+  },
   "author": "Mark Rogers",
   "keywords": [
     "markup",
