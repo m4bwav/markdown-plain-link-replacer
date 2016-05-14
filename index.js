@@ -4,7 +4,7 @@ var getUrls = require('get-urls');
 var iterate = require('array-iterate');
 var isUrl = require('is-url');
 var getTitleAtUrl = require('get-title-at-url');
-var Promise = require('Promise');
+var Promise = require('bluebird');
 var parseDomain = require('parse-domain');
 var he = require('he');
 var exports = module.exports = {}
