@@ -1,5 +1,7 @@
 # markdown-plain-link-replacer
 
+[![Join the chat at https://gitter.im/m4bwav/markdown-plain-link-replacer](https://badges.gitter.im/m4bwav/markdown-plain-link-replacer.svg)](https://gitter.im/m4bwav/markdown-plain-link-replacer?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![npm package](https://nodei.co/npm/markdown-plain-link-replacer.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/markdown-plain-link-replacer/)
 
 [![Dependency Status](https://david-dm.org/m4bwav/markdown-plain-link-replacer.svg)](https://david-dm.org/m4bwav/markdown-plain-link-replacer)
