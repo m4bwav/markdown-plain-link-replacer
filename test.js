@@ -1,4 +1,5 @@
 import test from 'ava';
+import Promise from 'Promise';
 import linkReplacer from './';
 
 global.Promise = Promise;
