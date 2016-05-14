@@ -4,7 +4,9 @@
   "description": "Script to replace a text link (ie http://whatever) with the title at the links webpage in markdown.",
   "main": "./index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "snyk test && xo && nyc ava",
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "travis-after-success": "nyc report --reporter=text-lcov | coveralls"
   },
   "repository": {
     "type": "git",
@@ -39,10 +41,29 @@
     "get-urls": "5.0.0",
     "array-iterate": "1.0.0",
     "is-url": "1.2.1",
-    "get-title-at-url": "1.0.6",
+    "get-title-at-url": "~1.0.24",
     "meow": "3.7.0",
     "promise": "7.1.1",
     "parse-domain": "0.2.1",
     "he": "1.1.0"
+  },
+  "devDependencies": {
+    "ava": "*",
+    "execa": "^0.4.0",
+    "coveralls": "^2.11.9",
+    "codecov.io": "^0.1.6",
+    "nyc": "^6.4.4",
+    "xo": "^0.15.0",
+    "snyk": "^1.14.3"
+  },
+  "xo": {
+    "rules": {
+      "xo/no-process-exit": "off",
+      "linebreak-style": "off",
+      "indent": [
+        "error",
+        2
+      ]
+    }
   }
 }
