@@ -8,7 +8,6 @@ var replaceParsedPlainLinksWithTitles = require('./lib/replace-parsed-plain-link
 var exports = module.exports = {}
   ;
 
-
 exports.replacePlainLinks = function (markdown, callback, options) {
   if (!markdown) {
     callback(markdown);
