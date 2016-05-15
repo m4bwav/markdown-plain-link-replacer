@@ -2,6 +2,7 @@
 
 var Promise = require('bluebird');
 var he = require('he');
+var debug = require('debug')('index');
 var filterValidUrlsAndLookupTitles = require('./lib/filter-valid-urls-and-lookup-titles.js');
 var parseUrlsFromMarkdownAndFilter = require('./lib/parse-urls-from-markdown-and-filter.js');
 var replaceParsedPlainLinksWithTitles = require('./lib/replace-parsed-plain-links-with-titles.js');
@@ -25,9 +26,8 @@ exports.replacePlainLinks = function (markdown, callback, options) {
 
   Promise.all(lookupPromises)
     .then(function (res) {
-      if (options.d && options.d.indexOf && options.d.indexOf('promisecomplete') !== -1) {
-        console.log(res);
-      }
+      debug(res);
+
       replaceParsedPlainLinksWithTitles(res, decodedMarkdown, callback, options);
     }
   );

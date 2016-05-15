@@ -2,7 +2,8 @@ language: node_js
 
 node_js:
   - node
-
+  - 'stable'
+  
 after_success: npm run coverage
 
 sudo: false
