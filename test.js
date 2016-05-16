@@ -3,6 +3,7 @@ import test from 'ava';
 import linkReplacer from './';
 
 var basicInput = 'http://www.google.com';
+var testImageUrl = 'https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png';
 var basicOutput = '"[Google](' + basicInput + ')", *google.com*';
 var fourSpaces = '    ';
 
@@ -13,9 +14,23 @@ test.cb('Basic link replacement', function (t) {
   });
 });
 
+test.cb('Basic link replacement in parentheses', function (t) {
+  linkReplacer.replacePlainLinks('(' + basicInput + ')', function (newMarkdown) {
+    t.is(newMarkdown, '(' + basicOutput + ')');
+    t.end();
+  });
+});
+
 test.cb('Basic link replacement with trailing spaces', function (t) {
   linkReplacer.replacePlainLinks(basicInput + fourSpaces, function (newMarkdown) {
     t.is(newMarkdown, basicOutput + fourSpaces);
+    t.end();
+  });
+});
+
+test.cb('Will not replace image links', function (t) {
+  linkReplacer.replacePlainLinks(testImageUrl, function (newMarkdown) {
+    t.is(newMarkdown, testImageUrl);
     t.end();
   });
 });
