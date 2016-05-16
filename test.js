@@ -6,7 +6,7 @@ var basicInput = 'http://www.google.com';
 var testImageUrl = 'https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png';
 var basicOutput = '"[Google](' + basicInput + ')", *google.com*';
 var fourSpaces = '    ';
-
+var endOfFileReference = '[1]: http://en.wikipedia.org/wiki/Branch_predictor';
 test.cb('Basic link replacement', function (t) {
   linkReplacer.replacePlainLinks(basicInput, function (newMarkdown) {
     t.is(newMarkdown, basicOutput);
@@ -24,6 +24,27 @@ test.cb('Basic link replacement in parentheses', function (t) {
 test.cb('Basic link replacement with trailing spaces', function (t) {
   linkReplacer.replacePlainLinks(basicInput + fourSpaces, function (newMarkdown) {
     t.is(newMarkdown, basicOutput + fourSpaces);
+    t.end();
+  });
+});
+
+test.cb('A link that is part of existing markdown link should not be replaced', function (t) {
+  linkReplacer.replacePlainLinks(basicOutput, function (newMarkdown) {
+    t.is(newMarkdown, basicOutput);
+    t.end();
+  });
+});
+
+test.cb('A link that is part of the reference list at the end of markdown, should not be replaced', function (t) {
+  linkReplacer.replacePlainLinks(endOfFileReference, function (newMarkdown) {
+    t.is(newMarkdown, endOfFileReference);
+    t.end();
+  });
+});
+
+test.cb('Only links that are not part of existing links should be textified, even if there is another link with the same url', function (t) {
+  linkReplacer.replacePlainLinks(basicOutput + ' ' + basicInput, function (newMarkdown) {
+    t.is(newMarkdown, basicOutput + ' ' + basicOutput);
     t.end();
   });
 });
