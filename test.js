@@ -10,11 +10,12 @@ test.cb('Basic link replacement', function (t) {
 });
 
 test.cb('Can handle a typical list of wikia urls at end of article', function (t) {
-  var sampleInput = fs.readFileSync('./fixtures/wikialistsample.md');
-  var targetOutput = fs.readFileSync('./fixtures/wikialistsample-output.md');
-
-  linkReplacer.replacePlainLinks(sampleInput, function (newMarkdown) {
-    t.is(newMarkdown, targetOutput);
-    t.end();
+  fs.readFile('/fixtures/wikialistsample.md', function (inputErr, sampleInput) {
+    fs.readFile('/fixtures/wikialistsample-output.md', function (outputErr, targetOutput) {
+      linkReplacer.replacePlainLinks(sampleInput, function (newMarkdown) {
+        t.is(newMarkdown, targetOutput);
+        t.end();
+      });
+    });
   });
 });
