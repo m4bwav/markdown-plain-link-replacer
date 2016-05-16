@@ -2,9 +2,35 @@ import fs from 'fs';
 import test from 'ava';
 import linkReplacer from './';
 
+var basicInput = 'http://www.google.com';
+var basicOutput = '"[Google](' + basicInput + ')", *google.com*';
+var fourSpaces = '    ';
+
 test.cb('Basic link replacement', function (t) {
-  linkReplacer.replacePlainLinks('http://www.google.com', function (newMarkdown) {
-    t.is(newMarkdown, '"[Google](http://www.google.com)", *google.com*');
+  linkReplacer.replacePlainLinks(basicInput, function (newMarkdown) {
+    t.is(newMarkdown, basicOutput);
+    t.end();
+  });
+});
+
+test.cb('Basic link replacement with trailing spaces', function (t) {
+  linkReplacer.replacePlainLinks(basicInput + fourSpaces, function (newMarkdown) {
+    t.is(newMarkdown, basicOutput + fourSpaces);
+    t.end();
+  });
+});
+
+test.cb('Basic link replacement with the same link appearing twice', function (t) {
+  linkReplacer.replacePlainLinks(basicInput + ' ' + basicInput, function (newMarkdown) {
+    t.is(newMarkdown, basicOutput + ' ' + basicOutput);
+    t.end();
+  });
+});
+
+test.cb('A 404 title shouldn\t be replaced', function (t) {
+  var fourOhFourUrl = 'http://www.google.com/aaa';
+  linkReplacer.replacePlainLinks(fourOhFourUrl, function (newMarkdown) {
+    t.is(newMarkdown, fourOhFourUrl);
     t.end();
   });
 });
