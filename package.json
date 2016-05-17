@@ -65,7 +65,10 @@
       "indent": [
         "error",
         2
-      ]
+      ],
+    "ignores": [
+      "test/_*.js"
+    ]
     }
   }
 }

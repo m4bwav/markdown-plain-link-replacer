@@ -1,6 +1,6 @@
 import fs from 'fs';
 import test from 'ava';
-import linkReplacer from './';
+import linkReplacer from '..';
 
 var basicInput = 'http://www.google.com';
 var testImageUrl = 'https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png';
