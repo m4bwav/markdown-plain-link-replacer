@@ -67,7 +67,7 @@
         2
       ],
     "ignores": [
-      "test/_*.js"
+      "test/_*.js", 0
     ]
     }
   }
