@@ -7,7 +7,7 @@ var testImageUrl = 'https://www.google.com/images/branding/googlelogo/1x/googlel
 var basicOutput = '"[Google](' + basicInput + ')", *google.com*';
 var fourSpaces = '    ';
 var urlWithCapitalization = 'http://starwars.wikia.com/wiki/Endor/Legends';
-var markdownFromCapitalization = '\'[Endor](http://starwars.wikia.com/wiki/Endor/Legends)\', *wikia.com*';
+var markdownFromCapitalization = '"[Endor](http://starwars.wikia.com/wiki/Endor/Legends)", *wikia.com*';
 var endOfFileReference = '[1]: ' + urlWithCapitalization;
 test.cb('Basic link replacement', function (t) {
   linkReplacer.replacePlainLinks(basicInput, function (newMarkdown) {
