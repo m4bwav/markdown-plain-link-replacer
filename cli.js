@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 'use strict';
+var fs = require('fs');
 var meow = require('meow');
-var linkReplacer = require('./index.js')
-  ;
+var linkReplacer = require('./index.js');
 
 var cli = meow({
   help: [
@@ -14,11 +14,22 @@ var cli = meow({
   ]
 });
 
-var input = cli.input[0];
+if (cli && cli.flags && cli.flags.h) {
+  return;
+}
 
-linkReplacer.replacePlainLinks(input, function (newMarkdown) {
-  if (cli && cli.flags && cli.flags.h) {
-    return;
-  }
-  console.log(newMarkdown);
-}, cli.flags);
+function executeLinkReplace(markdown) {
+  linkReplacer.replacePlainLinks(markdown, function (newMarkdown) {
+    console.log(newMarkdown);
+  }, cli.flags);
+}
+var filePath = cli.flags.i;
+
+if (filePath) {
+  fs.readFile(filePath, 'utf8', function (secondInputErr, fileText) {
+    executeLinkReplace(fileText);
+  });
+} else {
+  executeLinkReplace(cli.input[0]);
+}
+
