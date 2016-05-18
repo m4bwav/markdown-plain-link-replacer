@@ -1,6 +1,6 @@
 {
   "name": "markdown-plain-link-replacer",
-  "version": "1.0.23",
+  "version": "1.0.24",
   "description": "Script to replace a text link (ie http://whatever) with the title at the links webpage in markdown.",
   "main": "./index.js",
   "scripts": {
