@@ -6,7 +6,9 @@ var basicInput = 'http://www.google.com';
 var testImageUrl = 'https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png';
 var basicOutput = '"[Google](' + basicInput + ')", *google.com*';
 var fourSpaces = '    ';
-var endOfFileReference = '[1]: http://en.wikipedia.org/wiki/Branch_predictor';
+var urlWithCapitalization = 'http://starwars.wikia.com/wiki/Endor/Legends';
+var markdownFromCapitalization = '\'[Endor](http://starwars.wikia.com/wiki/Endor/Legends)\', *wikia.com*';
+var endOfFileReference = '[1]: ' + urlWithCapitalization;
 test.cb('Basic link replacement', function (t) {
   linkReplacer.replacePlainLinks(basicInput, function (newMarkdown) {
     t.is(newMarkdown, basicOutput);
@@ -52,6 +54,13 @@ test.cb('Only links that are not part of existing links should be textified, eve
 test.cb('Will not replace image links', function (t) {
   linkReplacer.replacePlainLinks(testImageUrl, function (newMarkdown) {
     t.is(newMarkdown, testImageUrl);
+    t.end();
+  });
+});
+
+test.cb('Can deal with urls that use caplitalization', function (t) {
+  linkReplacer.replacePlainLinks(urlWithCapitalization, function (newMarkdown) {
+    t.is(newMarkdown, markdownFromCapitalization);
     t.end();
   });
 });
