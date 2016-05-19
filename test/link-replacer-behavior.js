@@ -9,6 +9,7 @@ var fourSpaces = '    ';
 var urlWithCapitalization = 'http://starwars.wikia.com/wiki/Endor/Legends';
 var markdownFromCapitalization = '"[Endor](http://starwars.wikia.com/wiki/Endor/Legends)", *wikia.com*';
 var endOfFileReference = '[1]: ' + urlWithCapitalization;
+
 test.cb('Basic link replacement', function (t) {
   linkReplacer.replacePlainLinks(basicInput, function (newMarkdown) {
     t.is(newMarkdown, basicOutput);
@@ -81,9 +82,24 @@ test.cb('A 404 title shouldn\t be replaced', function (t) {
 });
 
 test.cb('Can handle a typical list of wikia urls at end of article', function (t) {
-  fs.readFile('/fixtures/wikialistsample.md', function (inputErr, sampleInput) {
-    fs.readFile('/fixtures/wikialistsample-output.md', function (outputErr, targetOutput) {
+  fs.readFile('./fixtures/wikialistsample.md', 'utf8', function (inputErr, sampleInput) {
+    if (inputErr) {
+      console.log(inputErr);
+      t.fail();
+      return;
+    }
+    fs.readFile('./fixtures/wikialistsample-output.md', 'utf8', function (outputErr, targetOutput) {
+      if (outputErr) {
+        console.log(outputErr);
+        t.fail();
+        return;
+      }
+      console.log('here: ' + inputErr);
       linkReplacer.replacePlainLinks(sampleInput, function (newMarkdown) {
+        if (!newMarkdown) {
+          t.fail('newMarkdown is empty');
+          return;
+        }
         t.is(newMarkdown, targetOutput);
         t.end();
       });
