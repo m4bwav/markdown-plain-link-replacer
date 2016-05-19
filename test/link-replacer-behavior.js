@@ -7,6 +7,8 @@ var testImageUrl = 'https://www.google.com/images/branding/googlelogo/1x/googlel
 var basicOutput = '"[Google](' + basicInput + ')", *google.com*';
 var fourSpaces = '    ';
 var urlWithCapitalization = 'http://starwars.wikia.com/wiki/Endor/Legends';
+var urlWithParenthesis = 'https://en.wikipedia.org/wiki/Bent_%28band%29';
+var markdownFromParenthesisUrl = '"[Bent (band)](https://en.wikipedia.org/wiki/Bent_%28band%29)", *wikipedia.org*';
 var markdownFromCapitalization = '"[Endor](http://starwars.wikia.com/wiki/Endor/Legends)", *wikia.com*';
 var endOfFileReference = '[1]: ' + urlWithCapitalization;
 
@@ -59,6 +61,13 @@ test.cb('Will not replace image links', function (t) {
   });
 });
 
+test.cb('Can handle a url with parenthesis', function (t) {
+  linkReplacer.replacePlainLinks(urlWithParenthesis, function (newMarkdown) {
+    t.is(newMarkdown, markdownFromParenthesisUrl);
+    t.end();
+  });
+});
+
 test.cb('Can deal with urls that use caplitalization', function (t) {
   linkReplacer.replacePlainLinks(urlWithCapitalization, function (newMarkdown) {
     t.is(newMarkdown, markdownFromCapitalization);
@@ -69,6 +78,14 @@ test.cb('Can deal with urls that use caplitalization', function (t) {
 test.cb('Basic link replacement with the same link appearing twice', function (t) {
   linkReplacer.replacePlainLinks(basicInput + ' ' + basicInput, function (newMarkdown) {
     t.is(newMarkdown, basicOutput + ' ' + basicOutput);
+    t.end();
+  });
+});
+
+test.cb('Should handle empty input with empty output', function (t) {
+  var emptyInput = '';
+  linkReplacer.replacePlainLinks(emptyInput, function (newMarkdown) {
+    t.is(newMarkdown, emptyInput);
     t.end();
   });
 });
@@ -94,7 +111,7 @@ test.cb('Can handle a typical list of wikia urls at end of article', function (t
         t.fail();
         return;
       }
-      console.log('here: ' + inputErr);
+
       linkReplacer.replacePlainLinks(sampleInput, function (newMarkdown) {
         if (!newMarkdown) {
           t.fail('newMarkdown is empty');

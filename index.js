@@ -9,26 +9,22 @@ var replaceParsedPlainLinksWithTitles = require('./lib/replace-parsed-plain-link
 var exports = module.exports = {}
   ;
 
-exports.replacePlainLinks = function (markdown, callback, options) {
+exports.replacePlainLinks = function (markdown, callback) {
   if (!markdown) {
     callback(markdown);
     return;
   }
 
-  if (!options) {
-    options = {};
-  }
-
   var decodedMarkdown = he.decode(markdown);
-  var urls = parseUrlsFromMarkdownAndFilter(decodedMarkdown, options);
-  var lookupPromises = filterValidUrlsAndLookupTitles(urls, decodedMarkdown, options)
+  var urls = parseUrlsFromMarkdownAndFilter(decodedMarkdown);
+  var lookupPromises = filterValidUrlsAndLookupTitles(urls, decodedMarkdown)
     ;
 
   Promise.all(lookupPromises)
     .then(function (res) {
       debug(res);
 
-      replaceParsedPlainLinksWithTitles(res, decodedMarkdown, callback, options);
+      replaceParsedPlainLinksWithTitles(res, decodedMarkdown, callback);
     }
   );
 };
