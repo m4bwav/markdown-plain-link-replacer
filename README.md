@@ -56,9 +56,13 @@ $ markdown-plain-link-replacer --help
 
   Example
     $ markdown-plain-link-replacer "  http://starwars.wikia.com/wiki/Bespin  "
+  
+  File input example with custom template
+    $ markdown-plain-link-replacer -i "sample.md" -t "[{{title}}]({{url}}) from {{source}}"
 ```
 
-The cli can take a "-i" argument for file input, and "-h" argument for passing in a hogan template string.
+The cli can take a `-i` argument for file input, and `-t` argument for passing in a hogan template string.
+
 
 ## License
 
