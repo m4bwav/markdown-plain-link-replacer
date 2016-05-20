@@ -10,7 +10,7 @@
 [![Gitter](https://badges.gitter.im/m4bwav/markdown-plain-link-replacer.svg)](https://gitter.im/m4bwav/markdown-plain-link-replacer?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 
-Script to replace a plain text link (ie http://whatever) with the title at the link's webpage in markdown.
+Script to replace a plain text link (ie http://whatever) with a linked title to the link's webpage in markdown.
 
 
 ## Installation
