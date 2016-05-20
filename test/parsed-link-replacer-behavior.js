@@ -1,7 +1,7 @@
 import test from 'ava';
 var replaceParsedPlainLinksWithTitles = require('../lib/replace-parsed-plain-links-with-titles.js');
 
-var basicInput = 'http://www.google.com/';
+var basicInput = 'https://www.codedread.com/test-crawlers.html';
 var basicPlusSlash = basicInput + '/';
 var endOfFileReference = '[1]: ' + basicInput;
 

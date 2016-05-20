@@ -9,7 +9,7 @@ var replaceParsedPlainLinksWithTitles = require('./lib/replace-parsed-plain-link
 var exports = module.exports = {}
   ;
 
-exports.replacePlainLinks = function (markdown, callback) {
+exports.replacePlainLinks = function (markdown, callback, hoganTemplate) {
   if (!markdown) {
     callback(markdown);
     return;
@@ -17,7 +17,7 @@ exports.replacePlainLinks = function (markdown, callback) {
 
   var decodedMarkdown = he.decode(markdown);
   var urls = parseUrlsFromMarkdownAndFilter(decodedMarkdown);
-  var lookupPromises = filterValidUrlsAndLookupTitles(urls, decodedMarkdown)
+  var lookupPromises = filterValidUrlsAndLookupTitles(urls, decodedMarkdown, hoganTemplate)
     ;
 
   Promise.all(lookupPromises)

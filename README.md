@@ -35,6 +35,13 @@ linkReplacer.replacePlainLinks(input, function(newMarkdown){
 });
 ```
 
+The replacePlainLinks method has the following signature `replacePlainLinks(inputMarkdown, calllback, [hogan template])`.
+The hogan template is optional and uses the hogan.js templating engine to style the new markdown.
+For example, a template = '[{{title}}]({{url}}) from {{source}}' will produce 
+"[Google](http://www.google.com) from google.com" 
+for url http://www.google.com.  The default template is '"[{{title}}]({{url}})", *{{source}}*'
+
+
 ## CLI
 
 ```
@@ -51,6 +58,7 @@ $ markdown-plain-link-replacer --help
     $ markdown-plain-link-replacer "  http://starwars.wikia.com/wiki/Bespin  "
 ```
 
+The cli can take a "-i" argument for file input, and "-h" argument for passing in a hogan template string.
 
 ## License
 

@@ -17,11 +17,3 @@ As such, the likely sequence of events is:
 This is scraped together from various Wookiepedia articles. You can read up there to see where it's sourced from.
 
 http://starwars.wikia.com/wiki/TranLang_III_communications_module
-
-http://starwars.wikia.com/wiki/Endor/Legends
-
-http://starwars.wikia.com/wiki/Ewokese/Legends
-
-http://starwars.wikia.com/wiki/Yuzzum/Legends
-
-http://starwars.wikia.com/wiki/Yuzzum_language

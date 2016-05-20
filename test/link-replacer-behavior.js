@@ -2,33 +2,36 @@ import fs from 'fs';
 import test from 'ava';
 import linkReplacer from '..';
 
-var basicInput = 'http://www.google.com';
+var basicInput = 'https://www.codedread.com/test-crawlers.html';
+var basicInputUrlSecond = 'http://www.google.com';
+var basicOutputSecond = '"[Google](' + basicInputUrlSecond + ')", *google.com*';
 var testImageUrl = 'https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png';
-var basicOutput = '"[Google](' + basicInput + ')", *google.com*';
-var fourSpaces = '    ';
-var urlWithCapitalization = 'http://starwars.wikia.com/wiki/Endor/Legends';
+var basicUrlTitle = 'Test Page For Crawlers';
+var basicUrlSource = 'codedread.com';
+var basicOutput = '"[' + basicUrlTitle + '](' + basicInput + ')", *' + basicUrlSource + '*';
 var urlWithParenthesis = 'https://en.wikipedia.org/wiki/Bent_%28band%29';
 var markdownFromParenthesisUrl = '"[Bent (band)](https://en.wikipedia.org/wiki/Bent_%28band%29)", *wikipedia.org*';
-var markdownFromCapitalization = '"[Endor](http://starwars.wikia.com/wiki/Endor/Legends)", *wikia.com*';
-var endOfFileReference = '[1]: ' + urlWithCapitalization;
+var endOfFileReference = '[1]: ' + urlWithParenthesis;
+var customHoganTemplate = '[{{title}}]({{url}}) from {{source}}';
+var customHoganOutput = '[' + basicUrlTitle + '](' + basicInput + ') from ' + basicUrlSource;
 
 test.cb('Basic link replacement', function (t) {
-  linkReplacer.replacePlainLinks(basicInput, function (newMarkdown) {
-    t.is(newMarkdown, basicOutput);
+  linkReplacer.replacePlainLinks(basicInputUrlSecond, function (newMarkdown) {
+    t.is(newMarkdown, basicOutputSecond);
     t.end();
   });
+});
+
+test.cb('Basic link replacement with hogan template', function (t) {
+  linkReplacer.replacePlainLinks(basicInput, function (newMarkdown) {
+    t.is(newMarkdown, customHoganOutput);
+    t.end();
+  }, customHoganTemplate);
 });
 
 test.cb('Basic link replacement in parentheses', function (t) {
-  linkReplacer.replacePlainLinks('(' + basicInput + ')', function (newMarkdown) {
-    t.is(newMarkdown, '(' + basicOutput + ')');
-    t.end();
-  });
-});
-
-test.cb('Basic link replacement with trailing spaces', function (t) {
-  linkReplacer.replacePlainLinks(basicInput + fourSpaces, function (newMarkdown) {
-    t.is(newMarkdown, basicOutput + fourSpaces);
+  linkReplacer.replacePlainLinks('(' + basicInputUrlSecond + ')', function (newMarkdown) {
+    t.is(newMarkdown, '(' + basicOutputSecond + ')');
     t.end();
   });
 });
@@ -47,13 +50,6 @@ test.cb('A link that is part of the reference list at the end of markdown, shoul
   });
 });
 
-test.cb('Only links that are not part of existing links should be textified, even if there is another link with the same url', function (t) {
-  linkReplacer.replacePlainLinks(basicOutput + ' ' + basicInput, function (newMarkdown) {
-    t.is(newMarkdown, basicOutput + ' ' + basicOutput);
-    t.end();
-  });
-});
-
 test.cb('Will not replace image links', function (t) {
   linkReplacer.replacePlainLinks(testImageUrl, function (newMarkdown) {
     t.is(newMarkdown, testImageUrl);
@@ -64,13 +60,6 @@ test.cb('Will not replace image links', function (t) {
 test.cb('Can handle a url with parenthesis', function (t) {
   linkReplacer.replacePlainLinks(urlWithParenthesis, function (newMarkdown) {
     t.is(newMarkdown, markdownFromParenthesisUrl);
-    t.end();
-  });
-});
-
-test.cb('Can deal with urls that use caplitalization', function (t) {
-  linkReplacer.replacePlainLinks(urlWithCapitalization, function (newMarkdown) {
-    t.is(newMarkdown, markdownFromCapitalization);
     t.end();
   });
 });

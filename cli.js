@@ -17,11 +17,12 @@ var cli = meow({
 if (cli && cli.flags && cli.flags.h) {
   return;
 }
+var templateString = cli.flags.t;
 
 function executeLinkReplace(markdown) {
   linkReplacer.replacePlainLinks(markdown, function (newMarkdown) {
     console.log(newMarkdown);
-  }, cli.flags);
+  }, templateString);
 }
 var filePath = cli.flags.i;
 

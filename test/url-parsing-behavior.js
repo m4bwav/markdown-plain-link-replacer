@@ -1,7 +1,7 @@
 import test from 'ava';
 var parseUrlsFromMarkdownAndFilter = require('../lib/parse-urls-from-markdown-and-filter.js');
 
-var basicInput = 'http://www.google.com/';
+var basicInput = 'https://www.codedread.com/test-crawlers.html';
 
 test('An empty markdown should result in an empty list', function (t) {
   var urlList = parseUrlsFromMarkdownAndFilter('');

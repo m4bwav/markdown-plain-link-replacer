@@ -1,7 +1,7 @@
 import test from 'ava';
 import filterValidator from '../lib/filter-valid-urls-and-lookup-titles.js';
 
-var basicInput = 'http://www.google.com';
+var basicInput = 'https://www.codedread.com/test-crawlers.html';
 
 test('If a url is really part of another url it should be filtered out', function (t) {
   var urlWithExtraChar = basicInput + 'a';
