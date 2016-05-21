@@ -17,19 +17,25 @@ var cli = meow({
 if (cli && cli.flags && cli.flags.h) {
   return;
 }
+
 var templateString = cli.flags.t;
 
-function executeLinkReplace(markdown) {
-  linkReplacer.replacePlainLinks(markdown, function (newMarkdown) {
-    console.log(newMarkdown);
-  }, templateString);
+function replaceLinksCallback(newMarkdown) {
+  console.log(newMarkdown);
 }
+
+function executeLinkReplace(markdown) {
+  linkReplacer.replacePlainLinks(markdown, replaceLinksCallback, templateString);
+}
+
+function afterFileReadExecuteLinkReplace(secondInputErr, fileText) {
+  executeLinkReplace(fileText);
+}
+
 var filePath = cli.flags.i;
 
 if (filePath) {
-  fs.readFile(filePath, 'utf8', function (secondInputErr, fileText) {
-    executeLinkReplace(fileText);
-  });
+  fs.readFile(filePath, 'utf8', afterFileReadExecuteLinkReplace);
 } else {
   executeLinkReplace(cli.input[0]);
 }
