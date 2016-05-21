@@ -5,6 +5,9 @@ var basicInput = 'https://www.codedread.com/test-crawlers.html';
 var basicPlusSlash = basicInput + '/';
 var endOfFileReference = '[1]: ' + basicInput;
 
+var basicInputUrlSecond = 'http://www.google.com';
+var basicOutputSecond = '"[Google](' + basicInputUrlSecond + ')", *google.com*';
+
 test.cb('An empty markdown should result in an empty list', function (t) {
   var inputArray = [{
     titleMarkdown: 'Does not matter',
@@ -51,6 +54,24 @@ test.cb('A short part of url should not be replace a longer part', function (t) 
   try {
     replaceParsedPlainLinksWithTitles(inputArray, basicPlusSlash, function (outputMarkdown) {
       t.is(basicPlusSlash, outputMarkdown);
+      t.end();
+    });
+  } catch (error) {
+    t.fail(error.message);
+    t.end();
+  }
+});
+
+test.cb('Won\t replace a url that is already linkified', function (t) {
+  var inputArray = [{
+    titleMarkdown: basicOutputSecond,
+    url: basicInputUrlSecond
+  }];
+
+  t.plan(1);
+  try {
+    replaceParsedPlainLinksWithTitles(inputArray, basicOutputSecond, function (outputMarkdown) {
+      t.is(basicOutputSecond, outputMarkdown);
       t.end();
     });
   } catch (error) {
