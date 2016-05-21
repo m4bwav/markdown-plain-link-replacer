@@ -11,7 +11,7 @@
 
 
 Script to replace a plain text link (ie http://whatever) with a linked title to the link's webpage in markdown.
-`Source: http://www.google.com` would become `Source: "[Google](http://www.google.com)", *google.com*`, although a tepmlate 
+`Source: http://www.google.com` would become `Source: "[Google](http://www.google.com)", *google.com*`, although a template 
 can used if desired. 
 
 
