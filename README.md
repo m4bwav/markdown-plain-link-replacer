@@ -11,6 +11,8 @@
 
 
 Script to replace a plain text link (ie http://whatever) with a linked title to the link's webpage in markdown.
+`Source: http://www.google.com` would become `Source: "[Google](http://www.google.com)", *google.com*`, although a tepmlate 
+can used if desired. 
 
 
 ## Installation
@@ -36,7 +38,7 @@ linkReplacer.replacePlainLinks(input, function(newMarkdown){
 ```
    
    
-The replacePlainLinks method has the following signature `replacePlainLinks(inputMarkdown, calllback, [hogan template])`.
+The replacePlainLinks method has the following signature `replacePlainLinks(inputMarkdown, calllback, [hoganTemplate])`.
 The hogan template is optional and uses the hogan.js templating engine to style the new markdown.
 For example, a template = `[{{title}}]({{url}}) from {{source}}` will produce 
 `[Google](http://www.google.com) from google.com` 
