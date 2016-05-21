@@ -19,24 +19,23 @@ if (cli && cli.flags && cli.flags.h) {
 }
 
 var templateString = cli.flags.t;
+var filePath = cli.flags.i;
 
 function replaceLinksCallback(newMarkdown) {
   console.log(newMarkdown);
 }
 
-function executeLinkReplace(markdown) {
-  linkReplacer.replacePlainLinks(markdown, replaceLinksCallback, templateString);
+function executeLinkReplace(markdown, template) {
+  linkReplacer.replacePlainLinks(markdown, replaceLinksCallback, template);
 }
 
 function afterFileReadExecuteLinkReplace(secondInputErr, fileText) {
-  executeLinkReplace(fileText);
+  executeLinkReplace(fileText, templateString);
 }
-
-var filePath = cli.flags.i;
 
 if (filePath) {
   fs.readFile(filePath, 'utf8', afterFileReadExecuteLinkReplace);
 } else {
-  executeLinkReplace(cli.input[0]);
+  executeLinkReplace(cli.input[0], templateString);
 }
 

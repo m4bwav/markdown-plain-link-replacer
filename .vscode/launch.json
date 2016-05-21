@@ -8,9 +8,8 @@
             "program": "${workspaceRoot}/cli.js",
             "stopOnEntry": false,
             "args": [ 
-              "-i", "./test/fixtures/hogansample.md",
-              "-t", "[{{title}}]({{url}}) from {{source}}"
-             ],
+              "[TranLang III communications module](http://starwars.wikia.com/wiki/TranLang_III_communications_module), *wikia.com*",
+            ],
             "cwd": "${workspaceRoot}",
             "preLaunchTask": null,
             "runtimeExecutable": null,
