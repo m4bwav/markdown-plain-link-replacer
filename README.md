@@ -63,7 +63,8 @@ $ markdown-plain-link-replacer --help
   File input example with custom template
     $ markdown-plain-link-replacer -i "sample.md" -t "[{{title}}]({{url}}) from {{source}}"
 ```
-
+  
+  
 The cli can take a `-i` argument for file input, and `-t` argument for passing in a hogan template string.
 
 
