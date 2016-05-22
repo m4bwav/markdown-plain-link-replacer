@@ -6,8 +6,7 @@ var debug = require('debug')('index');
 var filterValidUrlsAndLookupTitles = require('./lib/filter-valid-urls-and-lookup-titles.js');
 var parseUrlsFromMarkdownAndFilter = require('./lib/parse-urls-from-markdown-and-filter.js');
 var replaceParsedPlainLinksWithTitles = require('./lib/replace-parsed-plain-links-with-titles.js');
-var exports = module.exports = {}
-  ;
+var exports = module.exports = {};
 
 function replacePlainLinks(markdown, callback, hoganTemplate) {
   if (!markdown) {
