@@ -64,13 +64,6 @@ test.cb('Can handle a url with parenthesis', function (t) {
   });
 });
 
-test.cb('Basic link replacement with the same link appearing twice', function (t) {
-  linkReplacer.replacePlainLinks(basicInput + ' ' + basicInput, function (newMarkdown) {
-    t.is(newMarkdown, basicOutput + ' ' + basicOutput);
-    t.end();
-  });
-});
-
 test.cb('Should handle empty input with empty output', function (t) {
   var emptyInput = '';
   linkReplacer.replacePlainLinks(emptyInput, function (newMarkdown) {
