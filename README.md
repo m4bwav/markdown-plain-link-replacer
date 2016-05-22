@@ -38,6 +38,7 @@ linkReplacer.replacePlainLinks(input, function(newMarkdown){
 ```
    
    
+   
 The replacePlainLinks method has the following signature `replacePlainLinks(inputMarkdown, calllback, [hoganTemplate])`.
 The hogan template is optional and uses the hogan.js templating engine to style the new markdown.
 For example, a template = `[{{title}}]({{url}}) from {{source}}` will produce 

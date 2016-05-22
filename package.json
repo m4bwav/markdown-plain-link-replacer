@@ -39,16 +39,17 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "get-urls": "5.0.0",
     "array-iterate": "1.0.0",
-    "is-url": "1.2.1",
-    "get-title-at-url": "~1.0.25",
-    "meow": "3.7.0",
     "bluebird": "~3.4.0",
-    "parse-domain": "0.2.1",
-    "he": "1.1.0",
     "debug": "2.2.0",
-    "hogan.js": "3.0.2"
+    "get-title-at-url": "~1.0.25",
+    "get-urls": "5.0.0",
+    "he": "1.1.0",
+    "hogan.js": "3.0.2",
+    "is-image-url": "^1.1.8",
+    "is-url": "1.2.1",
+    "meow": "3.7.0",
+    "parse-domain": "0.2.1"
   },
   "devDependencies": {
     "ava": "*",
