@@ -49,7 +49,8 @@
     "is-image-url": "^1.1.8",
     "is-url": "1.2.1",
     "meow": "3.7.0",
-    "parse-domain": "0.2.1"
+    "parse-domain": "0.2.1",
+    "replace-string-at-position": "^1.0.3"
   },
   "devDependencies": {
     "ava": "*",
