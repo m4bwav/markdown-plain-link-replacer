@@ -42,7 +42,7 @@
     "array-iterate": "1.0.0",
     "bluebird": "~3.4.0",
     "debug": "2.2.0",
-    "get-title-at-url": "~1.0.25",
+    "get-title-at-url": "~1.0.26",
     "get-urls": "5.0.0",
     "he": "1.1.0",
     "hogan.js": "3.0.2",
