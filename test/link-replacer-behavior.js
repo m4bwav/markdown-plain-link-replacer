@@ -13,7 +13,7 @@ var urlWithParenthesis = 'https://en.wikipedia.org/wiki/Bent_%28band%29';
 var markdownFromParenthesisUrl = '"[Bent (band)](https://en.wikipedia.org/wiki/Bent_%28band%29)", *wikipedia.org*';
 var endOfFileReference = '[1]: ' + urlWithParenthesis;
 var customHoganTemplate = '[{{title}}]({{url}}) from {{source}}';
-var customHoganOutput = '[' + basicUrlTitle + '](' + basicInput + ') from ' + basicUrlSource;
+var customHoganOutput = '[Google](' + basicInputUrlSecond + ') from google.com';
 
 test.cb('Basic link replacement', function (t) {
   linkReplacer.replacePlainLinks(basicInputUrlSecond, function (newMarkdown) {
@@ -23,7 +23,7 @@ test.cb('Basic link replacement', function (t) {
 });
 
 test.cb('Basic link replacement with hogan template', function (t) {
-  linkReplacer.replacePlainLinks(basicInput, function (newMarkdown) {
+  linkReplacer.replacePlainLinks(basicInputUrlSecond, function (newMarkdown) {
     t.is(newMarkdown, customHoganOutput);
     t.end();
   }, customHoganTemplate);
