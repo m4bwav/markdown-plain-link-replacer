@@ -39,27 +39,27 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "array-iterate": "1.0.0",
-    "bluebird": "~3.4.0",
-    "debug": "2.2.0",
-    "get-title-at-url": "~1.0.26",
-    "get-urls": "5.0.0",
-    "he": "1.1.0",
+    "array-iterate": "^1.1.0",
+    "bluebird": "~3.5.0",
+    "debug": "2.6.7",
+    "get-title-at-url": "^1.1.4",
+    "get-urls": "7.0.0",
+    "he": "1.1.1",
     "hogan.js": "3.0.2",
     "is-image-url": "^1.1.8",
-    "is-url": "1.2.1",
+    "is-url": "1.2.2",
     "meow": "3.7.0",
     "parse-domain": "0.2.1",
-    "replace-string-at-position": "^1.0.3"
+    "replace-string-at-position": "^1.0.4"
   },
   "devDependencies": {
-    "ava": "*",
-    "execa": "^0.4.0",
+    "ava": "^0.19.1",
+    "execa": "^0.6.3",
     "coveralls": "^2.11.9",
     "codecov.io": "^0.1.6",
-    "nyc": "^6.4.4",
-    "xo": "^0.15.1",
-    "snyk": "^1.14.3"
+    "nyc": "^10.2.0",
+    "xo": "^0.18.1",
+    "snyk": "^1.29.0"
   },
   "xo": {
     "rules": {
