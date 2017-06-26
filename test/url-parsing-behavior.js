@@ -1,25 +1,29 @@
 import test from 'ava';
-var parseUrlsFromMarkdownAndFilter = require('../lib/parse-urls-from-markdown-and-filter.js');
 
-var basicInput = 'https://www.codedread.com/test-crawlers.html';
+const parseUrlsFromMarkdownAndFilter = require('../lib/parse-urls-from-markdown-and-filter.js');
 
-test('An empty markdown should result in an empty list', function (t) {
-  var urlList = parseUrlsFromMarkdownAndFilter('');
+const basicInput = 'https://www.codedread.com/test-crawlers.html';
 
-  t.is(urlList.length, 0);
+test.cb('An empty markdown should result in an empty list', t => {
+  parseUrlsFromMarkdownAndFilter('', urlList => {
+    t.is(urlList.length, 0);
+    t.end();
+  });
 });
 
-test('Should be able to find a url surrounded by parenthesis', function (t) {
-  var urlWithExtraChar = '(' + basicInput + ')';
-  var urlList = parseUrlsFromMarkdownAndFilter(urlWithExtraChar);
-
-  t.is(urlList.length, 1);
+test.cb('Should be able to find a url surrounded by parenthesis', t => {
+  const urlWithExtraChar = '(' + basicInput + ')';
+  parseUrlsFromMarkdownAndFilter(urlWithExtraChar, urlList => {
+    t.is(urlList.length, 1);
+    t.end();
+  });
 });
 
-test('Should chop a hanging parenthesis from the url if there isn\t an open parenthesis in the url', function (t) {
-  var urlWithExtraChar = basicInput + ')';
-  var urlList = parseUrlsFromMarkdownAndFilter(urlWithExtraChar);
-
-  t.is(urlList.length, 1);
-  t.is(urlList[0], basicInput);
+test.cb('Should chop a hanging parenthesis from the url if there isn\t an open parenthesis in the url', t => {
+  const urlWithExtraChar = basicInput + ')';
+  parseUrlsFromMarkdownAndFilter(urlWithExtraChar, urlList => {
+    t.is(urlList.length, 1);
+    t.is(urlList[0], basicInput);
+    t.end();
+  });
 });

@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 'use strict';
-var fs = require('fs');
-var meow = require('meow');
-var linkReplacer = require('./index.js');
+const fs = require('fs');
+const meow = require('meow');
+const linkReplacer = require('./index.js');
 
-var cli = meow({
+const cli = meow({
   help: [
     'Usage',
     '  $ markdown-plain-link-replacer "<markdown>"',
@@ -14,28 +14,30 @@ var cli = meow({
   ]
 });
 
-if (cli && cli.flags && cli.flags.h) {
-  return;
+function executeCliLogic() {
+  if (cli && cli.flags && cli.flags.h) {
+    return;
+  }
+
+  const templateString = cli.flags.t;
+  const filePath = cli.flags.i;
+
+  function replaceLinksCallback(newMarkdown) {
+    console.log(newMarkdown);
+  }
+
+  function executeLinkReplace(markdown, template) {
+    linkReplacer.replacePlainLinks(markdown, replaceLinksCallback, template);
+  }
+
+  function afterFileReadExecuteLinkReplace(secondInputErr, fileText) {
+    executeLinkReplace(fileText, templateString);
+  }
+
+  if (filePath) {
+    fs.readFile(filePath, 'utf8', afterFileReadExecuteLinkReplace);
+  } else {
+    executeLinkReplace(cli.input[0], templateString);
+  }
 }
-
-var templateString = cli.flags.t;
-var filePath = cli.flags.i;
-
-function replaceLinksCallback(newMarkdown) {
-  console.log(newMarkdown);
-}
-
-function executeLinkReplace(markdown, template) {
-  linkReplacer.replacePlainLinks(markdown, replaceLinksCallback, template);
-}
-
-function afterFileReadExecuteLinkReplace(secondInputErr, fileText) {
-  executeLinkReplace(fileText, templateString);
-}
-
-if (filePath) {
-  fs.readFile(filePath, 'utf8', afterFileReadExecuteLinkReplace);
-} else {
-  executeLinkReplace(cli.input[0], templateString);
-}
-
+executeCliLogic();

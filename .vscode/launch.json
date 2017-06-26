@@ -8,7 +8,7 @@
             "program": "${workspaceRoot}/cli.js",
             "stopOnEntry": false,
             "args": [ 
-              "[TranLang III communications module](http://starwars.wikia.com/wiki/TranLang_III_communications_module), *wikia.com*",
+              "https://en.wikipedia.org/wiki/Bent_%28band%29"
             ],
             "cwd": "${workspaceRoot}",
             "preLaunchTask": null,
@@ -19,7 +19,7 @@
             "env": {
                 "NODE_ENV": "development"
             },
-            "externalConsole": false,
+            "console": false,
             "sourceMaps": false,
             "outDir": null
         },
