@@ -41,7 +41,7 @@
   "dependencies": {
     "array-iterate": "^1.1.0",
     "bluebird": "~3.5.0",
-    "debug": "2.6.7",
+    "debug": "2.6.9",
     "get-title-at-url": "^1.1.4",
     "url-regex": "^4.1.1",
     "he": "1.1.1",
