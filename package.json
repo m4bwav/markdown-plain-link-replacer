@@ -41,16 +41,16 @@
   "dependencies": {
     "array-iterate": "^1.1.0",
     "bluebird": "~3.5.0",
-    "debug": "2.6.7",
-    "get-title-at-url": "^1.1.4",
-    "url-regex": "^4.1.1",
+    "debug": "^3.1.0",
+    "get-title-at-url": "^1.1.5",
     "he": "1.1.1",
     "hogan.js": "3.0.2",
-    "is-an-image-url": "^1.0.1",
+    "is-an-image-url": "^1.0.3",
     "is-url": "1.2.2",
     "meow": "3.7.0",
     "parse-domain": "0.2.1",
-    "replace-string-at-position": "^1.0.4"
+    "replace-string-at-position": "^1.0.4",
+    "url-regex": "^4.1.1"
   },
   "devDependencies": {
     "ava": "^0.19.1",
