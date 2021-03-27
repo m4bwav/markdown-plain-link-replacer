@@ -47,7 +47,7 @@
     "hogan.js": "3.0.2",
     "is-an-image-url": "^1.0.3",
     "is-url": "1.2.4",
-    "meow": "3.7.0",
+    "meow": "8.0.0",
     "parse-domain": "0.2.1",
     "replace-string-at-position": "^1.0.4",
     "url-regex": "^4.1.1"
