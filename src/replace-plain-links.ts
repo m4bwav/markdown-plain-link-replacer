@@ -130,8 +130,8 @@ async function replaceIn(markdown: string, settings: Settings): Promise<string> 
   const links = findLinks(markdown);
   // Each URL is looked up once, however often it appears.
   const urls = [...new Set(links.map(link => link.url).filter(url => url !== undefined))];
-  const isImage = await Promise.all(urls.map(async url => isAnImageUrl(url, {timeout: settings.timeout, signal: settings.signal})));
-  const pages = urls.filter((_url, index) => isImage[index] === false);
+  const imageAnswers = await Promise.all(urls.map(async url => isAnImageUrl(url, {timeout: settings.timeout, signal: settings.signal})));
+  const pages = urls.filter((_url, index) => imageAnswers[index] === false);
   const titles = new Map<string, string>();
   await Promise.all(pages.map(async (url, index) => {
     const title = await titleFor(url, index * STAGGER, settings);

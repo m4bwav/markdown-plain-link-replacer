@@ -7,7 +7,7 @@ then a failure as undici reports it), because the server's Location is relative 
 address. As fetch does, a URL with a user name or password, or a scheme other than http and https, fails without a request.
 */
 export function installFetch(server) {
-  const original = globalThis.fetch;
+  const original = fetch;
   const state = {
     server,
     urls: [],
@@ -32,11 +32,10 @@ export function installFetch(server) {
       state.urls.push(url.href);
       const headers = new Headers(init.headers);
       headers.set('x-fixture-url', url.href);
-      // eslint-disable-next-line no-await-in-loop -- one hop at a time, as a redirect chain is.
+
       const response = await original(`${state.server.base}${url.pathname}${url.search}`, {...init, headers, redirect: 'manual'});
       const location = response.headers.get('location');
-      if (response.status >= 300 && response.status < 400 && location !== null && (init.redirect ?? 'follow') === 'follow') {
-        // eslint-disable-next-line no-await-in-loop -- the body of a redirect is not read.
+      if (location !== null && response.status >= 300 && response.status < 400 && (init.redirect ?? 'follow') === 'follow') {
         await response.body?.cancel();
         if (hops === 20) {
           throw new TypeError('fetch failed', {cause: new Error('redirect count exceeded')});

@@ -8,27 +8,32 @@ no title is looked up): the URLs it asks for are exactly the links it found.
 3. Crafted input that made url-regex backtrack for minutes is scanned in linear time.
 */
 import assert from 'node:assert/strict';
-import {after, before, describe, test} from 'node:test';
+import {
+  after,
+  before,
+  describe,
+  test,
+} from 'node:test';
 import {builds} from '../helpers/builds.js';
 import {stubFetch} from '../helpers/stub-fetch.js';
 
-const ipv4 = '(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])(?:\\.(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])){3}';
-const host = '(?:(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)';
-const domain = '(?:\\.(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)*';
-const tld = '(?:\\.(?:[a-z\\u00a1-\\uffff]{2,}))\\.?';
-const URL_REGEX_4 = new RegExp(`(?:(?:(?:[a-z]+:)?//)|www\\.)(?:\\S+(?::\\S*)?@)?(?:localhost|${ipv4}|${host}${domain}${tld})(?::\\d{2,5})?(?:[/?#][^\\s"]*)?`, 'ig');
+const ipv4 = String.raw`(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])(?:\.(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])){3}`;
+const host = String.raw`(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)`;
+const domain = String.raw`(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*`;
+const tld = String.raw`(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?`;
+const URL_REGEX_4 = new RegExp(String.raw`(?:(?:(?:[a-z]+:)?//)|www\.)(?:\S+(?::\S*)?@)?(?:localhost|${ipv4}|${host}${domain}${tld})(?::\d{2,5})?(?:[/?#][^\s"]*)?`, 'gi');
 
 // Plan E4, restated from the plan rather than taken from the code: trailing . , ; : ! ? ' * ~ and backticks come off, and a
 // closing ) ] } > when the link holds fewer of its opening bracket; never into the host name.
 function trimmed(link) {
   let end = link.length;
   const minimum = link.indexOf('//') + 3;
-  const pairs = {')': '(', ']': '[', '}': '{', '>': '<'};
+  const pairs = new Map([[')', '('], [']', '['], ['}', '{'], ['>', '<']]);
   const count = (text, character) => text.split(character).length - 1;
   while (end > minimum) {
     const last = link[end - 1];
     const text = link.slice(0, end);
-    if ('.,;:!?\'*~`'.includes(last) || (pairs[last] && count(text, pairs[last]) < count(text, last))) {
+    if ('.,;:!?\'*~`'.includes(last) || (pairs.has(last) && count(text, pairs.get(last)) < count(text, last))) {
       end--;
     } else {
       break;
@@ -61,7 +66,7 @@ function expectedUrls(text) {
     urls.add(url.href);
   }
 
-  return [...urls].sort();
+  return [...urls].toSorted((a, b) => a.localeCompare(b));
 }
 
 // A small deterministic generator (mulberry32), so a failure can be replayed from its seed.
@@ -101,7 +106,7 @@ async function urlsFound(lib, text) {
   const from = fetchStub.urls.length;
   const result = await lib.replacePlainLinks(text);
   assert.equal(result, text, 'every link is an image, so nothing changes');
-  return [...new Set(fetchStub.urls.slice(from))].sort();
+  return [...new Set(fetchStub.urls.slice(from))].toSorted((a, b) => a.localeCompare(b));
 }
 
 for (const {name, lib} of builds) {
@@ -110,7 +115,7 @@ for (const {name, lib} of builds) {
       const next = random(20_260_927);
       for (let round = 0; round < 3000; round++) {
         const text = generate(next);
-        // eslint-disable-next-line no-await-in-loop -- the stub's log is shared.
+
         assert.deepEqual(await urlsFound(lib, text), expectedUrls(text), `round ${round}: ${JSON.stringify(text)}`);
       }
     });
@@ -154,7 +159,6 @@ for (const {name, lib} of builds) {
         ['http://a.example.com/x\r\n[1]: http://b.example.com/y', ['http://a.example.com/x']],
       ];
       for (const [markdown, urls] of cases) {
-        // eslint-disable-next-line no-await-in-loop -- the stub's log is shared.
         assert.deepEqual(await urlsFound(lib, markdown), urls, JSON.stringify(markdown));
       }
     });
@@ -169,12 +173,12 @@ for (const {name, lib} of builds) {
         `http://x.co/${')'.repeat(1_000_000)}`,
         '`` ` '.repeat(200_000),
         'www.a.b-'.repeat(125_000),
-        `${'http://a.co/x '.repeat(10_000)}`.replaceAll('http', 'ftp'),
+        'ftp://a.co/x '.repeat(10_000),
         '\n'.repeat(1_000_000),
       ];
       for (const input of inputs) {
         const started = performance.now();
-        // eslint-disable-next-line no-await-in-loop -- one at a time, to time each.
+
         await urlsFound(lib, input);
         const elapsed = performance.now() - started;
         assert.ok(elapsed < 2000, `${JSON.stringify(input.slice(0, 20))}... took ${Math.round(elapsed)} ms`);

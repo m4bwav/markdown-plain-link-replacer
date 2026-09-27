@@ -4,7 +4,7 @@ talks to a server. `answer(url)` returns {status, type, body} (defaults: 200, te
 recorded in `state.urls`. Nothing leaves the process.
 */
 export function stubFetch(answer) {
-  const original = globalThis.fetch;
+  const original = fetch;
   const state = {
     urls: [],
     answer,

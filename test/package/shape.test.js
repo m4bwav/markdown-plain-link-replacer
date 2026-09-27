@@ -65,7 +65,7 @@ test('package.json: entry points exist, the four runtime dependencies, the Node 
   }
 
   // Each runtime dependency has its decision (plan D5); a new one needs another.
-  assert.deepEqual(Object.keys(packageJson.dependencies).sort(), DEPENDENCIES);
+  assert.deepEqual(Object.keys(packageJson.dependencies).toSorted((a, b) => a.localeCompare(b)), DEPENDENCIES);
   assert.equal(packageJson.engines.node, '>=20');
   assert.equal(packageJson.sideEffects, false);
   // Trusted publishing matches this URL exactly.
@@ -76,7 +76,7 @@ test('the builds use nothing Node-specific or browser-specific, so they run in D
   for (const file of ['dist/index.mjs', 'dist/index.cjs']) {
     const code = await read(file);
     assert.doesNotMatch(code, /\bnode:/u, `${file} imports a node: module`);
-    const required = [...code.matchAll(/\brequire\("([^"]+)"\)/gu)].map(match => match[1]).sort();
+    const required = Array.from(code.matchAll(/\brequire\("(?<name>[^"]+)"\)/gu), match => match.groups.name).toSorted((a, b) => a.localeCompare(b));
     assert.deepEqual(required, file.endsWith('.cjs') ? DEPENDENCIES : [], `${file} requires only the dependencies`);
     assert.doesNotMatch(code, /\bprocess\./u, `${file} uses process`);
     assert.doesNotMatch(code, /\bBuffer\b/u, `${file} uses Buffer`);
@@ -94,7 +94,7 @@ test('the CommonJS build runs in a bare ECMAScript context given only its depend
 
   // The dependencies load in this realm and fetch there; the package's own code runs in the bare one.
   const load = createRequire(import.meta.url);
-  const original = globalThis.fetch;
+  const original = fetch;
   globalThis.fetch = fakeFetch;
   try {
     const context = vm.createContext({
@@ -133,7 +133,9 @@ test('the declaration files need no Node types', async () => {
 test('the declaration files describe both call forms and the exports', async () => {
   const [esm, cjs] = await Promise.all([read('dist/index.d.mts'), read('dist/index.d.cts')]);
   for (const types of [esm, cjs]) {
-    assert.ok(types.includes('declare function replacePlainLinks(markdown: string, callback: ReplacePlainLinksCallback, template?: string | null, options?: Omit<ReplacePlainLinksOptions, \'template\'>): void;'), types);
+    const callbackForm = 'declare function replacePlainLinks(markdown: string, callback: ReplacePlainLinksCallback, '
+      + 'template?: string | null, options?: Omit<ReplacePlainLinksOptions, \'template\'>): void;';
+    assert.ok(types.includes(callbackForm), types);
     assert.ok(types.includes('declare function replacePlainLinks(markdown: string, options?: ReplacePlainLinksOptions): Promise<string>;'), types);
     assert.match(types, /markdownPlainLinkReplacer as default/u);
   }

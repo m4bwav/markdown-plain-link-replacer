@@ -5,12 +5,17 @@ hogan's output. Then what 2.x refuses (plan E10) and the default template (plan 
 */
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
-import {after, before, describe, test} from 'node:test';
+import {
+  after,
+  before,
+  describe,
+  test,
+} from 'node:test';
 import {builds} from '../helpers/builds.js';
 import {pageTitled, stubFetch} from '../helpers/stub-fetch.js';
 
-const require = createRequire(import.meta.url);
-const oracle = require('./hogan/hogan-3.0.2.json');
+const load = createRequire(import.meta.url);
+const oracle = load('./hogan/hogan-3.0.2.json');
 
 let fetchStub;
 let title = '';
@@ -25,14 +30,13 @@ for (const {name, lib} of builds) {
   describe(`templates (${name})`, () => {
     test(`every template matches ${oracle.engine}`, async () => {
       for (const entry of oracle.entries) {
-        title = entry.values.title;
-        const markdown = `before ${entry.values.url} after`;
         // An empty template means the default in replacePlainLinks, as in 1.1.16; hogan renders it as nothing.
         if (entry.template === '') {
           continue;
         }
 
-        // eslint-disable-next-line no-await-in-loop -- the stub's title is shared, so one call at a time.
+        title = entry.values.title;
+        const markdown = `before ${entry.values.url} after`;
         const result = await lib.replacePlainLinks(markdown, {template: entry.template});
         assert.equal(result, `before ${entry.output} after`, `${JSON.stringify(entry.template)} with ${JSON.stringify(entry.values)}`);
       }
@@ -54,7 +58,6 @@ for (const {name, lib} of builds) {
     test('empty, null and undefined templates mean the default', async () => {
       title = 'Page';
       for (const template of ['', null, undefined]) {
-        // eslint-disable-next-line no-await-in-loop -- sequential on purpose.
         assert.equal(await lib.replacePlainLinks('http://www.example.com/page', {template}), '"[Page](http://www.example.com/page)", *example.com*');
       }
     });
@@ -68,15 +71,16 @@ for (const {name, lib} of builds) {
     });
 
     test('unsupported or unclosed templates throw a TypeError before any request (E10)', () => {
-      const before = fetchStub.urls.length;
-      for (const template of ['{{> partial}}', '{{=<% %>=}}', '{{<parent}}{{/parent}}', '{{$block}}{{/block}}', '{{title', '{{{title}}', '{{#title}}', '{{/title}}', '{{#title}}{{/url}}', 42, {}, [], true]) {
+      const seen = fetchStub.urls.length;
+      const refused = ['{{> partial}}', '{{=<% %>=}}', '{{<parent}}{{/parent}}', '{{$block}}{{/block}}', '{{title', '{{{title}}'];
+      for (const template of [...refused, '{{#title}}', '{{/title}}', '{{#title}}{{/url}}', 42, {}, [], true]) {
         assert.throws(() => lib.replacePlainLinks('http://www.example.com/page', {template}), TypeError, JSON.stringify(template));
         assert.throws(() => {
           lib.replacePlainLinks('http://www.example.com/page', () => {}, template);
         }, TypeError, JSON.stringify(template));
       }
 
-      assert.equal(fetchStub.urls.length, before);
+      assert.equal(fetchStub.urls.length, seen);
     });
   });
 }

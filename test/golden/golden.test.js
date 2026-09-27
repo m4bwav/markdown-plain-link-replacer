@@ -15,15 +15,20 @@ The pages whose title reading changed otherwise are named exceptions with their 
 */
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
-import {after, before, describe, test} from 'node:test';
+import {
+  after,
+  before,
+  describe,
+  test,
+} from 'node:test';
 import {getTitleAtUrl} from 'get-title-at-url';
 import {builds} from '../helpers/builds.js';
 import {installFetch} from '../helpers/web.js';
 
-const require = createRequire(import.meta.url);
-const golden = require('./1.1.16.json');
-const {encode, decode} = require('./codec.cjs');
-const fixtures = require('./fixture-server.cjs');
+const load = createRequire(import.meta.url);
+const golden = load('./1.1.16.json');
+const {encode, decode} = load('./codec.cjs');
+const fixtures = load('./fixture-server.cjs');
 
 let server;
 let web;
@@ -37,7 +42,7 @@ after(async () => {
 });
 
 // The default template's escaping of a title (E6).
-const markdownEscape = title => title.replaceAll(/[\\`*_[\]<>]/gu, '\\$&').replaceAll(/&(?=#?\w+;)/gu, '\\&');
+const markdownEscape = title => title.replaceAll(/[*<>[\\\]_`]/gu, String.raw`\$&`).replaceAll(/&(?=#?\w+;)/gu, String.raw`\&`);
 
 async function titleOf(url) {
   const result = await getTitleAtUrl(url);
@@ -49,14 +54,13 @@ async function swapTitles(recorded, markdown, template) {
     return recorded;
   }
 
-  if (template === undefined || template === null || template === '') {
+  if ([undefined, null, ''].includes(template)) {
     let result = '';
     let last = 0;
-    for (const match of recorded.matchAll(/"\[Page\]\((.+?)\)", \*/gu)) {
-      const url = match[1].replaceAll('&amp;', '&');
-      // eslint-disable-next-line no-await-in-loop -- one title at a time, in order.
-      const title = await titleOf(url);
-      result += `${recorded.slice(last, match.index)}"[${markdownEscape(title)}](${match[1]})", *`;
+    for (const match of recorded.matchAll(/"\[Page\]\((?<link>.+?)\)", \*/gu)) {
+      const {link} = match.groups;
+      const title = await titleOf(link.replaceAll('&amp;', '&'));
+      result += `${recorded.slice(last, match.index)}"[${markdownEscape(title)}](${link})", *`;
       last = match.index + match[0].length;
     }
 
@@ -64,7 +68,12 @@ async function swapTitles(recorded, markdown, template) {
   }
 
   const [link] = /https?:\/\/\S+/u.exec(markdown) ?? [];
-  return link && recorded.includes('Page') ? recorded.replaceAll('Page', await titleOf(link)) : recorded;
+  if (!link || !recorded.includes('Page')) {
+    return recorded;
+  }
+
+  const title = await titleOf(link);
+  return recorded.replaceAll('Page', () => title);
 }
 
 const page = (url, title, source = 'example.com') => `"[${title}](${url})", *${source}*`;
@@ -96,7 +105,7 @@ const exceptions = {
   'link in single quotes': {plan: 'E4', output: `'${P2}'`, requests: [P]},
   'link with parentheses in the path, in parentheses': {
     plan: 'E4',
-    output: `(${page('https://en.wikipedia.org/wiki/Bent_(band)', 'Page /wiki/Bent\\_(band)', 'wikipedia.org')})`,
+    output: `(${page('https://en.wikipedia.org/wiki/Bent_(band)', String.raw`Page /wiki/Bent\_(band)`, 'wikipedia.org')})`,
     requests: ['https://en.wikipedia.org/wiki/Bent_(band)'],
   },
   'a link and the same link with a period': {plan: 'E4', output: `${P2}. And ${P2}`},
@@ -113,7 +122,7 @@ const exceptions = {
   'entities in the text, with a link': {plan: 'E5', output: `A &amp; B ${P2}`},
   // E6: the default template writes the URL as written and the title without HTML escaping, markdown characters escaped.
   'link with a query string': {plan: 'E6', output: page(`${P}?a=1&b=2`, 'Page /page')},
-  'title with HTML entities': {plan: 'E6', output: page('http://www.example.com/entities', 'Tom & Jerry \\<3 "quoted" \'single\'')},
+  'title with HTML entities': {plan: 'E6', output: page('http://www.example.com/entities', String.raw`Tom & Jerry \<3 "quoted" 'single'`)},
   'title with markdown characters': {plan: 'E6', output: page('http://www.example.com/brackets', 'Array\\[0\\] (x) \\*star\\* \\_under\\_ \\`tick\\`')},
   'title with dollar patterns': {plan: 'E6', output: page('http://www.example.com/dollar', 'Cost $& $1 $$ $\'')},
   // E3: links without an http or https scheme are left, with no request and no crash.
@@ -157,24 +166,23 @@ const isCallback = value => value && typeof value === 'object' && value.$callbac
 
 // Runs one call; resolves with {threw} or {sync, output} (callback form) or {output} (Promise form), and the URLs requested.
 async function run(lib, args, form, timeout) {
-  const before = web.urls.length;
+  const seen = web.urls.length;
   const real = decode(args);
   if (form === 'promise') {
     // The same call with the callback left out: replacePlainLinks(markdown, {template, timeout}).
-    const options = {...(real[2] === undefined ? {} : {template: real[2]}), ...(timeout === undefined ? {} : {timeout})};
+    const options = {...(real[2] !== undefined && {template: real[2]}), ...(timeout !== undefined && {timeout})};
     real.splice(1, 3, Object.keys(options).length === 0 ? undefined : options);
   }
 
-  let returned = false;
-  let resolveCall;
-  const called = new Promise(resolve => {
-    resolveCall = resolve;
-  });
+  let isReturned = false;
+  const {promise: called, resolve: resolveCall} = Promise.withResolvers();
   const calls = [];
-  const realArgs = real.map(value => (isCallback(value) ? (...callbackArgs) => {
-    calls.push({sync: !returned, args: callbackArgs});
-    resolveCall();
-  } : value));
+  const realArgs = real.map(value => (isCallback(value)
+    ? (...callbackArgs) => {
+      calls.push({sync: !isReturned, args: callbackArgs});
+      resolveCall();
+    }
+    : value));
   let result;
   try {
     result = form === 'promise' ? lib.replacePlainLinks(...realArgs.slice(0, 2)) : lib.replacePlainLinks(...realArgs);
@@ -182,19 +190,19 @@ async function run(lib, args, form, timeout) {
     return {threw: error.name, urls: []};
   }
 
-  returned = true;
+  isReturned = true;
   if (form === 'promise' || result !== undefined) {
     assert.ok(result instanceof Promise, 'a call without a callback returns a Promise');
     const output = await result;
-    return {output: encode(summarise(output)), urls: web.urls.slice(before)};
+    return {output: encode(summarise(output)), urls: web.urls.slice(seen)};
   }
 
   await called;
   assert.equal(calls.length, 1, 'the callback is called once');
-  return {sync: calls[0].sync, output: encode(summarise(calls[0].args[0])), urls: web.urls.slice(before)};
+  return {sync: calls[0].sync, output: encode(summarise(calls[0].args[0])), urls: web.urls.slice(seen)};
 }
 
-const recordedUrls = record => [...new Set(record.requests.filter(line => / GET /u.test(line)).map(line => new URL(line.split(' ')[2]).href))];
+const recordedUrls = record => [...new Set(record.requests.filter(line => / GET /u.test(line)).map(line => new URL(line.split(' ', 3)[2]).href))];
 
 for (const {name: buildName, lib} of builds) {
   describe(`golden 1.1.16 (${buildName})`, () => {
@@ -207,8 +215,8 @@ for (const {name: buildName, lib} of builds) {
         if (exception?.timeout) {
           forms = ['promise'];
         }
+
         for (const form of forms) {
-          // eslint-disable-next-line no-await-in-loop -- the fixture server's request log is shared, so one call at a time.
           const got = await run(lib, record.args, form, exception?.timeout);
           // A named exception replaces the recorded answer, throw included.
           const threw = exception ? exception.threw : record.threw?.$error;
@@ -219,9 +227,9 @@ for (const {name: buildName, lib} of builds) {
 
           assert.equal(got.threw, undefined, `${form}: ${got.threw} thrown`);
           const recordedCall = record.calls[0];
-          const expected = exception && 'output' in exception
-            ? encode(exception.output)
-            : encode(await swapTitles(decode([recordedCall.args[0]])[0], markdown, template));
+          const expected = encode(exception && 'output' in exception
+            ? exception.output
+            : await swapTitles(decode([recordedCall.args[0]])[0], markdown, template));
           assert.deepEqual(got.output, expected, `${form}: the markdown`);
           if (form === 'callback' && recordedCall) {
             assert.equal(got.sync, recordedCall.sync, 'called back at once only for a falsy markdown');

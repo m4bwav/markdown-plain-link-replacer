@@ -62,6 +62,12 @@
     "esm",
     "cjs"
   ],
+  "dependencies": {
+    "get-title-at-url": "^3.0.0",
+    "is-an-image-url": "^2.0.0",
+    "replace-string-at-position": "^2.0.0",
+    "tldts": "^7.4.15"
+  },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
     "@tsconfig/node-ts": "^23.6.4",
@@ -75,11 +81,5 @@
   },
   "allowScripts": {
     "unrs-resolver": false
-  },
-  "dependencies": {
-    "get-title-at-url": "^3.0.0",
-    "is-an-image-url": "^2.0.0",
-    "replace-string-at-position": "^2.0.0",
-    "tldts": "^7.4.15"
   }
 }

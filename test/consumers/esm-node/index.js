@@ -5,7 +5,7 @@ import process from 'node:process';
 import linkReplacer, {replacePlainLinks} from 'markdown-plain-link-replacer';
 
 const base = process.argv[2] ?? globalThis.Deno?.args[0];
-const original = globalThis.fetch;
+const original = fetch;
 globalThis.fetch = async (input, init = {}) => {
   const url = new URL(String(input instanceof Request ? input.url : input));
   const headers = new Headers(init.headers);

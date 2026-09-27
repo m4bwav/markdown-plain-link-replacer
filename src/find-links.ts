@@ -101,15 +101,12 @@ function splitLines(markdown: string): Line[] {
 function fenceOpening(text: string): string | undefined {
   const opening = FENCE.exec(text);
   const marker = opening?.groups?.marker;
-  if (marker === undefined || (marker.startsWith('`') && text.slice(opening![0].length).includes('`'))) {
-    return undefined;
-  }
-
-  return marker;
+  const isCodeSpan = marker?.startsWith('`') === true && text.slice(opening![0].length).includes('`');
+  return isCodeSpan ? undefined : marker;
 }
 
 // Whether a line closes the fence opened by `marker`: the same character, at least as many, and nothing else on the line.
-function closesFence(text: string, marker: string): boolean {
+function isFenceClose(text: string, marker: string): boolean {
   const closing = FENCE.exec(text)?.groups?.marker;
   return closing !== undefined && closing.startsWith(marker[0]!) && closing.length >= marker.length && text.trim() === closing;
 }
@@ -125,7 +122,7 @@ function codeBlocks(lines: Line[], markdownLength: number): {blocks: Range[]; pr
   let isInIndented = false;
   for (const [lineIndex, line] of lines.entries()) {
     if (fence) {
-      if (closesFence(line.text, fence.marker)) {
+      if (isFenceClose(line.text, fence.marker)) {
         blocks.push([fence.start, line.end]);
         fence = undefined;
         isPreviousBlank = false;

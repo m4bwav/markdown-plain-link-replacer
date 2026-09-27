@@ -62,6 +62,21 @@ const xoConfig = [
     },
   },
   {
+    // The oracle in this file is url-regex 4.1.1's expression as 1.1.16 ran it, backtracking included; it stays as written.
+    // Its seeded generator (mulberry32) is 32-bit integer arithmetic.
+    files: ['test/unit/find-links.test.js'],
+    rules: {
+      'regexp/no-super-linear-backtracking': 'off',
+      'regexp/no-super-linear-move': 'off',
+      'regexp/no-useless-non-capturing-group': 'off',
+      'regexp/optimal-quantifier-concatenation': 'off',
+      'regexp/prefer-d': 'off',
+      'regexp/sort-character-class-elements': 'off',
+      'require-unicode-regexp': 'off',
+      'no-bitwise': 'off',
+    },
+  },
+  {
     // The tests and consumer fixtures replace fetch on purpose, to send the package's requests to the local fixture server.
     // The wrapper objects are the odd inputs the golden capture recorded. The links in the tests are http:// on purpose: the
     // package replaces http and https links alike, and the golden capture recorded http ones.

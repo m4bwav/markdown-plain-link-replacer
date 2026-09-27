@@ -3,7 +3,12 @@
 and the host name where there is none (plan E2; 1.1.16 crashed there). Checked through replacePlainLinks with a stub page.
 */
 import assert from 'node:assert/strict';
-import {after, before, describe, test} from 'node:test';
+import {
+  after,
+  before,
+  describe,
+  test,
+} from 'node:test';
 import {builds} from '../helpers/builds.js';
 import {pageTitled, stubFetch} from '../helpers/stub-fetch.js';
 
@@ -44,7 +49,6 @@ for (const {name, lib} of builds) {
   describe(`source (${name})`, () => {
     test('the site named for each host', async () => {
       for (const [link, source] of cases) {
-        // eslint-disable-next-line no-await-in-loop -- sequential on purpose.
         assert.equal(await lib.replacePlainLinks(link, {template: '{{{source}}}'}), source, link);
       }
     });

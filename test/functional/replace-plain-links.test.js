@@ -6,14 +6,20 @@ that throws (plan E17), in a child process. No test reaches the internet.
 import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
 import {createRequire} from 'node:module';
+import process from 'node:process';
+import {
+  after,
+  before,
+  describe,
+  test,
+} from 'node:test';
 import {fileURLToPath, pathToFileURL} from 'node:url';
-import {after, before, describe, test} from 'node:test';
 import {builds} from '../helpers/builds.js';
 import {pageTitled, stubFetch} from '../helpers/stub-fetch.js';
 import {installFetch} from '../helpers/web.js';
 
-const require = createRequire(import.meta.url);
-const fixtures = require('../golden/fixture-server.cjs');
+const load = createRequire(import.meta.url);
+const fixtures = load('../golden/fixture-server.cjs');
 
 let server;
 let web;
@@ -93,16 +99,15 @@ for (const {name, lib} of builds) {
     });
 
     test('an already aborted signal rejects without a request', async () => {
-      const before = web.urls.length;
+      const seen = web.urls.length;
       const controller = new AbortController();
       controller.abort(new Error('already'));
       await assert.rejects(lib.replacePlainLinks(`${base}/page`, {signal: controller.signal}), /already/u);
-      assert.equal(web.urls.length, before);
+      assert.equal(web.urls.length, seen);
     });
 
     test('a callback that throws: the exception is the caller\'s uncaught exception, and the callback runs once (E17)', async () => {
       for (const markdown of [`${base}/page`, 'no links']) {
-        // eslint-disable-next-line no-await-in-loop -- one child at a time.
         const result = await runChild(name, markdown);
         assert.deepEqual(result.calls, [markdown === 'no links' ? markdown : `"[Page /page](${base}/page)", *example.com*`]);
         assert.deepEqual(result.uncaught, ['thrown by the callback']);
@@ -142,7 +147,7 @@ for (const {name, lib} of builds) {
       const result = await lib.replacePlainLinks(text);
       const a = `"[T](${base}/a)", *example.com*`;
       assert.equal(result, `${a} ${a} (${a}) ${a}. "[T](${base}/b)", *example.com*`);
-      assert.deepEqual(log.map(entry => entry.url).sort(), [`${base}/a`, `${base}/a`, `${base}/b`, `${base}/b`]);
+      assert.deepEqual(log.map(entry => entry.url).toSorted((left, right) => left.localeCompare(right)), [`${base}/a`, `${base}/a`, `${base}/b`, `${base}/b`]);
     });
 
     test('title lookups start 100 ms apart, as 1.1.16\'s did', async () => {

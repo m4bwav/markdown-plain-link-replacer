@@ -53,7 +53,9 @@ function run(arguments_, input = '') {
     });
     child.on('close', code => {
       const requests = server.requests.slice(seen).map(request => request.url);
-      resolve({code, stdout: stdout.replaceAll('\r\n', '\n'), stderr: stderr.replaceAll('\r\n', '\n'), requests});
+      resolve({
+        code, stdout: stdout.replaceAll('\r\n', '\n'), stderr: stderr.replaceAll('\r\n', '\n'), requests,
+      });
     });
     child.stdin.end(input);
   });
@@ -77,9 +79,15 @@ const EXCEPTIONS = {
   '-i file and -t template (the README example shape)': {code: 0, stdout: 'From a file: [Page /page](http://www.example.com/page) from example.com\n\n', stderr: ''},
   'two arguments (the first is used)': {code: 0, stdout: '"[Page /one](http://www.example.com/one)", *example.com*\n', stderr: ''},
   // E14: errors go to stderr with exit 1 (1.1.16 printed "undefined" with exit 0, or a stack trace).
-  '-i missing file': {code: 1, stdout: '', stderr: 'error: cannot read no-such-file.md: ENOENT\n', requests: []},
-  '-i without a value': {code: 1, stdout: '', stderr: /^error: Option '-i, --input <value>' argument missing/u, requests: []},
-  'an unknown flag': {code: 1, stdout: '', stderr: /^error: Unknown option '--foo'/u, requests: []},
+  '-i missing file': {
+    code: 1, stdout: '', stderr: 'error: cannot read no-such-file.md: ENOENT\n', requests: [],
+  },
+  '-i without a value': {
+    code: 1, stdout: '', stderr: /^error: Option '-i, --input <value>' argument missing/u, requests: [],
+  },
+  'an unknown flag': {
+    code: 1, stdout: '', stderr: /^error: Unknown option '--foo'/u, requests: [],
+  },
   // E3: a www link without a scheme is left, with no crash.
   'www link without a scheme (crashes)': {code: 0, stdout: 'www.example.com/page\n', stderr: ''},
   // E2: an IP host is replaced, its source the address.
@@ -116,7 +124,6 @@ test('stdin: no argument, or "-" as the argument or the -i file (A1)', async () 
   const input = 'piped http://www.example.com/page\nsecond line\n';
   const expected = `piped ${P2}\nsecond line\n\n`;
   for (const arguments_ of [[], ['-'], ['-i', '-']]) {
-    // eslint-disable-next-line no-await-in-loop -- one child at a time.
     const got = await run(arguments_, input);
     assert.equal(got.code, 0, got.stderr);
     assert.equal(got.stdout, expected, JSON.stringify(arguments_));
@@ -139,7 +146,6 @@ test('--timeout: a page that never answers is left after it', async () => {
 
 test('--timeout must be a positive number', async () => {
   for (const value of ['0', '-1', 'abc', '']) {
-    // eslint-disable-next-line no-await-in-loop -- one child at a time.
     // The = form: parseArgs reads a separate "-1" as an option of its own.
     const got = await run([`--timeout=${value}`, 'x']);
     assert.equal(got.code, 1);
@@ -156,7 +162,6 @@ test('a template the renderer refuses: the error on stderr, exit 1, no request',
 
 test('--version and -v print the package version', async () => {
   for (const flag of ['--version', '-v']) {
-    // eslint-disable-next-line no-await-in-loop -- one child at a time.
     const got = await run([flag]);
     assert.equal(got.stdout, `${version}\n`);
   }

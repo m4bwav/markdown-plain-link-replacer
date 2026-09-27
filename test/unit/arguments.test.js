@@ -3,7 +3,12 @@ The two call forms and every argument check (plan D6, D7): what throws a TypeErr
 gets, when the callback runs, and what the Promise resolves to.
 */
 import assert from 'node:assert/strict';
-import {after, before, describe, test} from 'node:test';
+import {
+  after,
+  before,
+  describe,
+  test,
+} from 'node:test';
 import {builds} from '../helpers/builds.js';
 import {pageTitled, stubFetch} from '../helpers/stub-fetch.js';
 
@@ -36,35 +41,34 @@ for (const {name, lib} of builds) {
     });
 
     test('a String object is read as its string', async () => {
-      // eslint-disable-next-line no-new-wrappers, unicorn/new-for-builtins -- the wrapper is the point.
       assert.equal(await lib.replacePlainLinks(new String(LINK)), REPLACED);
     });
 
     test('a falsy markdown comes back as it is: at once to a callback, resolved by the Promise', async () => {
-      for (const markdown of [undefined, null, '', 0, false, Number.NaN]) {
+      for (const markdown of [undefined, null, '', 0, false, NaN]) {
         const calls = [];
         lib.replacePlainLinks(markdown, value => {
           calls.push(value);
         });
         assert.deepEqual(calls, [markdown]);
-        // eslint-disable-next-line no-await-in-loop -- sequential on purpose.
+
         assert.ok(Object.is(await lib.replacePlainLinks(markdown), markdown));
       }
     });
 
     test('the callback runs once, after the call returns, also for text without links', async () => {
       for (const markdown of [LINK, 'no links']) {
-        let returned = false;
-        // eslint-disable-next-line no-await-in-loop -- sequential on purpose.
+        let isReturned = false;
+
         const result = await new Promise(resolve => {
           const calls = [];
           lib.replacePlainLinks(markdown, value => {
-            calls.push({value, afterReturn: returned});
+            calls.push({value, afterReturn: isReturned});
             setTimeout(() => {
               resolve(calls);
             }, 50);
           });
-          returned = true;
+          isReturned = true;
         });
         assert.deepEqual(result, [{value: markdown === LINK ? REPLACED : markdown, afterReturn: true}]);
       }
@@ -82,7 +86,7 @@ for (const {name, lib} of builds) {
     });
 
     test('timeout must be a positive number; signal an AbortSignal', () => {
-      for (const timeout of [0, -1, Number.NaN, '100', null, true]) {
+      for (const timeout of [0, -1, NaN, '100', null, true]) {
         assert.throws(() => lib.replacePlainLinks(LINK, {timeout}), TypeError, String(timeout));
         assert.throws(() => {
           lib.replacePlainLinks(LINK, () => {}, undefined, {timeout});
@@ -97,15 +101,15 @@ for (const {name, lib} of builds) {
     });
 
     test('argument errors come before any request', () => {
-      const before = fetchStub.urls.length;
+      const seen = fetchStub.urls.length;
       assert.throws(() => lib.replacePlainLinks(LINK, {template: '{{#x}}'}), TypeError);
       assert.throws(() => lib.replacePlainLinks(LINK, {timeout: -5}), TypeError);
-      assert.equal(fetchStub.urls.length, before);
+      assert.equal(fetchStub.urls.length, seen);
     });
 
     test('a huge timeout is accepted (capped at the timer maximum)', async () => {
       assert.equal(await lib.replacePlainLinks(LINK, {timeout: Number.MAX_SAFE_INTEGER}), REPLACED);
-      assert.equal(await lib.replacePlainLinks(LINK, {timeout: Number.POSITIVE_INFINITY}), REPLACED);
+      assert.equal(await lib.replacePlainLinks(LINK, {timeout: Infinity}), REPLACED);
     });
   });
 }
