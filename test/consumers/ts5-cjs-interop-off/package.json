@@ -1,0 +1,5 @@
+{
+  "name": "ts5-cjs-interop-off",
+  "private": true,
+  "type": "commonjs"
+}

@@ -97,7 +97,22 @@ Numbers match the survey note's list. "E" marks a named exception in the golden 
 | E11 | a page that never answers | no callback | the link left after the timeout (10 s default) |
 | E12 | non-ASCII and emoji paths | no request, left | looked up |
 | E13 | redirect loop | 22 requests | fetch's limit (20 redirects) |
-| E14 | CLI: no input, missing file, unknown flag, `-h`, `-i` without a value | `undefined` exit 0, or a stack trace | usage or the error on stderr, exit 1; `-h` prints the help |
+| E14 | CLI: no input, missing file, unknown flag, `-h`, `-i` without a value | `undefined` exit 0, or a stack trace | usage or the error on stderr, exit 1; `-h` prints the help; with A1, no argument reads stdin (an empty stdin prints an empty line) |
+| E15 | links with a user name or password (found in Phase 2) | requested and replaced | left, not requested: fetch refuses such URLs |
+| E16 | no callback, or a callback that is not a function (Phase 2, from D6) | TypeError, or an unhandled rejection | the Promise form; a non-function, non-object second argument throws a TypeError |
+| E17 | a callback that throws (Phase 2, from D7) | an unhandled rejection (bluebird) | the caller's uncaught exception; the callback is called once |
+| E18 | an `@` more than 256 characters after the scheme, such as an email address deep in a query (Phase 3 review) | read as user info: the link is cut after the address, requested, and left because more URL follows | the `@` is part of the path: the whole link is requested and replaced (the scanner's bound that keeps it linear) |
+
+Small differences accepted in the Phase 3 review, not numbered because the text written is the same or the case is contrived:
+`](url) url` at the very start of the text (1.1.16 replaced the second link only through its `currentUrlStart > 2`
+off-by-one; 2.x leaves it, as it does anywhere else in the text); a link that is left alone because a `"` or more URL follows
+gets no image check (1.1.16 checked it, then left it); and `{{constructor}}` or `{{__proto__}}` in a custom template render
+empty where hogan.js printed `[object Object]`; and 1.1.16's replace step, which replaced every valid occurrence of a found
+URL's text, so it could replace a short link inside a longer one (`https://a.example.io/p` inside `https://a.example.io/p).com`,
+`//localhost` inside `http://localhost`, a host running into U+3000); 2.x replaces each link it found, whole. E4 also covers a
+link that ends at its host name followed by punctuation (`http://example.com, and`), which 1.1.16 left unreplaced. An offline
+differential of the published 1.1.16 (network stubbed) against 2.x on 13 000 generated texts found no other class
+(2026-09-27, scratch script, not kept; method in the log).
 
 ### Additions after the ruling
 

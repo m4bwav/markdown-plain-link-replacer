@@ -3,17 +3,18 @@
 <!-- Keep under 50 lines. Replace, never append. Written at the end of a work session so the next one starts without re-deriving state. -->
 
 ## Current state
-Phase 0 of the package-modernize run is done (2026-09-27): survey, baseline, golden capture of the published 1.1.16 (`test/golden/`), everlast doc set, AGENTS.md. Findings: `ai-docs/notes/2026-09-27-phase-0-survey-baseline-and-capture.md`.
+Phases 0 to 3 done (2026-09-27). Every Phase 3 review finding is fixed or recorded (commits 5851240 to 7146f05; see the log). The summary is posted on pull request #12 (https://github.com/m4bwav/markdown-plain-link-replacer/pull/12#issuecomment-5852474375). CI run 36293018870 is green on every job. 400 tests: 396 pass and 4 run in a child process. Coverage is 100 percent, and the golden files are unchanged since 87e88c6.
 
-## In progress
-Phase 1 written: `ai-docs/plans/2026-09-27-modernization-and-v2-release.md` (D1-D15, exceptions E1-E14) and `ai-docs/decisions/2026-09-27-v2-promise-new-dependencies-named-exceptions.md` (proposed). Stop: waiting for Mark's rulings.
+## Waiting on
+Mark's review of pull request #12, especially E15 to E18 and the "accepted small differences" paragraph under the plan's exceptions table.
 
 ## Decisions made this session
-None ruled yet. Recommended: fix the bugs in `replacePlainLinks` as named exceptions; titles follow get-title-at-url 3 (swapped mechanically in the golden test); url-regex, hogan.js and parse-domain replaced (inlined scanner, inlined renderer, tldts).
+- E18: an `@` more than 256 characters after the scheme is part of the path (plan, CHANGELOG, test).
+- 1.1.16's larger-URL rule is restored, with E4's punctuation allowed only when it ends the link. Rule details are in the log entry for 2026-09-27.
+- Accepted without a number: 1.1.16 replacing a short link inside a longer one. An offline differential against the published 1.1.16 found no other class.
 
 ## Dead ends hit
-- The old suite cannot be a baseline: xo 0.18 crashes on Node 24 and ava's tests fetch live pages whose titles changed.
-- request refuses a non-ASCII or emoji path, so those two capture cases make no request.
+Heredocs and `python -c` still eat backslashes; use Edit. The random differential needs whole-link seeds, or almost no links form.
 
 ## Next single action
-Take Mark's rulings on the plan's decisions table (first-hand, one question, if a new session: skill L-022), mark the decision record accepted, then start Phase 2 on branch v2 with the golden test.
+After Mark's review, start Phase 4: a ruleset before the merge, then the cleanup list in the plan's appendix as ai-docs/notes/dispositions.tsv. The Dependabot alert on url-regex (master's 1.1.16 manifest) closes when v2 merges. Remove `--min-release-age=0` from ci.yml after 2026-09-30 if wanted.
