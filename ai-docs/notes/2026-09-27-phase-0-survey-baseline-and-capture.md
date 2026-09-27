@@ -20,7 +20,7 @@ Surveyed 2026-09-27 (UTC) with the package-modernize skill's `survey-npm.sh`, a 
 
 - 1.1.16 of 2018-04-28 is latest; 38 versions from 2016-05-09. About 100 downloads a month (86 to 194 a month since April 2026). No `engines`, no `exports`, no types; `main: ./index.js`, `bin: cli.js`, a `files` allowlist (index.js, cli.js, lib). The registry counts 0 dependents, and a code search finds no package.json that names it outside this repository.
 - One export: `{replacePlainLinks}`, a function of arity 3 `(markdown, callback, hoganTemplate)`, returning undefined. `require()` gives an object.
-- Tarball: 9 files, 5070 bytes, equal to master apart from CRLF (index.js 31 and cli.js 42 carriage returns) and npm's package.json normalisation (repository.url with `git+`, `bin` as an object, `directories`, `type`).
+- Tarball: 9 files, 5070 bytes, equal to master apart from CRLF (index.js 31 and cli.js 42 carriage returns); package.json is identical.
 - Twelve runtime dependencies. Four are the maintainer's own: get-title-at-url ^1.1.6 (3.0.0 current), is-an-image-url ^1.0.3 (2.0.0 current, 1.x deprecated), replace-string-at-position ^1.0.4 (2.0.0 current). Both get-title-at-url 1.1.8 and is-an-image-url 1.0.4 use the deprecated `request` 2.88.2. The others: array-iterate ^1.1.0 (2.0.1), bluebird ~3.5.0 (3.7.2), debug ^3.1.0 (4.4.3), he 1.1.1 (1.2.0), hogan.js 3.0.2 (current, unmaintained), is-url 1.2.4, meow 3.7.0 (14.1.0), parse-domain 0.2.1 (8.4.0), url-regex ^4.1.1 (5.0.0; ReDoS, the one open Dependabot alert, high). A fresh install is 171 packages with six deprecation warnings.
 
 ### Baseline (old suite, scratch clone, Node 24.18)
