@@ -96,7 +96,7 @@ jobs:
         with:
           name: release
           path: |
-            stack-exchange-markdown-retriever-${{ steps.version.outputs.version }}.tgz
+            markdown-plain-link-replacer-${{ steps.version.outputs.version }}.tgz
             release-notes.md
           if-no-files-found: error
 
@@ -127,7 +127,7 @@ jobs:
         env:
           VERSION: ${{ needs.build.outputs.version }}
           DIST_TAG: ${{ needs.build.outputs.dist-tag }}
-        run: npm stage publish "./stack-exchange-markdown-retriever-$VERSION.tgz" --tag "$DIST_TAG" --ignore-scripts
+        run: npm stage publish "./markdown-plain-link-replacer-$VERSION.tgz" --tag "$DIST_TAG" --ignore-scripts
 
   github-release:
     name: GitHub Release

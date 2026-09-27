@@ -39,7 +39,7 @@ jobs:
       - run: npm run typecheck
       - name: Registry signatures of the installed packages
         run: npm audit signatures
-      - name: No vulnerable runtime dependency (the package has none)
+      - name: No vulnerable runtime dependency
         run: npm audit --omit=dev
 
   package:

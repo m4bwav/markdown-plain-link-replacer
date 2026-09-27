@@ -97,7 +97,10 @@ Numbers match the survey note's list. "E" marks a named exception in the golden 
 | E11 | a page that never answers | no callback | the link left after the timeout (10 s default) |
 | E12 | non-ASCII and emoji paths | no request, left | looked up |
 | E13 | redirect loop | 22 requests | fetch's limit (20 redirects) |
-| E14 | CLI: no input, missing file, unknown flag, `-h`, `-i` without a value | `undefined` exit 0, or a stack trace | usage or the error on stderr, exit 1; `-h` prints the help |
+| E14 | CLI: no input, missing file, unknown flag, `-h`, `-i` without a value | `undefined` exit 0, or a stack trace | usage or the error on stderr, exit 1; `-h` prints the help; with A1, no argument reads stdin (an empty stdin prints an empty line) |
+| E15 | links with a user name or password (found in Phase 2) | requested and replaced | left, not requested: fetch refuses such URLs |
+| E16 | no callback, or a callback that is not a function (Phase 2, from D6) | TypeError, or an unhandled rejection | the Promise form; a non-function, non-object second argument throws a TypeError |
+| E17 | a callback that throws (Phase 2, from D7) | an unhandled rejection (bluebird) | the caller's uncaught exception; the callback is called once |
 
 ### Additions after the ruling
 

@@ -4,7 +4,7 @@ Rules for any AI agent (Claude Code, Copilot, Cursor, Codex) working in this rep
 
 ## What this is
 
-The npm package `markdown-plain-link-replacer`: finds plain links in a markdown text, looks up each page's title, and replaces the link with a titled markdown link (`"[Title](url)", *source*` by default, or a hogan.js template), with a command line tool. On npm since 2016; 1.1.16 (2018-04-28, CommonJS in `index.js`, `lib/` and a meow 3 CLI, twelve runtime dependencies, no build) is the published version until 2.0.0 ships. The modernization is run with the package-modernize skill; start with `ai-docs/HANDOFF.md` to see how far it has got, and the plan in `ai-docs/plans/` once it exists. Until the `v2` branch merges, `master` holds the 1.1.16 code, whose `npm test` cannot run on Node 24 (snyk needs a login, xo 0.18 crashes, and the ava tests fetch live pages; see `ai-docs/log.md`).
+The npm package `markdown-plain-link-replacer`: finds plain links in a markdown text, looks up each page's title, and replaces the link with a titled markdown link (`"[Title](url)", *source*` by default, or a hogan.js template), with a command line tool. On npm since 2016; 1.1.16 (2018-04-28, CommonJS in `index.js`, `lib/` and a meow 3 CLI, twelve runtime dependencies, no build) is the published version until 2.0.0 ships. Version 2 is TypeScript in `src/`, built by tsdown into ESM and CommonJS with a declaration file for each, on four runtime dependencies: get-title-at-url, is-an-image-url and replace-string-at-position (the maintainer's own) and tldts. The plan is `ai-docs/plans/2026-09-27-modernization-and-v2-release.md` (decisions D1-D15, exceptions E1-E17, additions A1-A2); start with `ai-docs/HANDOFF.md` to see how far it has got.
 
 ## Rules
 
@@ -24,11 +24,31 @@ The npm package `markdown-plain-link-replacer`: finds plain links in a markdown 
 - **No AI attribution anywhere**: no Co-Authored-By trailers, no "generated with" lines in commits, pull requests or files.
 - **Windows note.** Write files with an editor tool, not shell heredocs (they lose backslashes). Check line endings by counting byte 13 with node; Git Bash's grep cannot see carriage returns. The 1.1.16 tarball was published with CRLF files.
 
-## Layout (1.1.16, on master until v2 merges)
+## Commands (version 2)
 
-- `index.js`: `replacePlainLinks(markdown, callback, hoganTemplate)`. HTML-decodes the whole text with `he`, then `lib/parse-urls-from-markdown-and-filter.js` finds links with url-regex and drops images (is-an-image-url 1.x, one GET per link), `lib/filter-valid-urls-and-lookup-titles.js` looks up titles (get-title-at-url 1.x, one GET per link, 100 ms apart) and names the source with parse-domain 0.2.1, and `lib/replace-parsed-plain-links-with-titles.js` splices each replacement in with replace-string-at-position. `lib/markdown-webpage-url-validator.js` skips links inside `](`, after `]: ` and inside a longer link.
-- `cli.js`: meow 3; the first argument is the markdown, `-i` a file, `-t` a template.
-- `test/`: ava 0.19 tests that fetch live pages; `test/fixtures/` holds two sample texts.
+```bash
+npm ci
+npm run build          # tsdown -> dist/ (index.mjs, index.cjs, index.d.mts, index.d.cts, cli.mjs, maps)
+npm test               # build, then node --test: golden, unit, functional, CLI, package shape (no network)
+npm run test:dist      # the same suites against the dist/ already built
+npm run test:consumers # build, pack, install the tarball into a scratch project, run the ESM, CJS, type and bin fixtures
+npm run test:live      # opt-in: two real pages (example.com and an image)
+npm run coverage       # c8 over the suites, mapped back to src/; fails under 95% lines or 90% branches
+npm run lint           # xo
+npm run typecheck      # tsc --noEmit
+npm run check          # publint, attw --pack ., npm pack --dry-run (needs a build first)
+```
+
+tsdown needs Node 22.18+ or 24 to build; the built output and the tests run on Node 20 and up.
+
+## Layout and traps
+
+- `src/scan-links.ts` finds what url-regex 4.1.1 matched, in linear time (the regex itself can backtrack for minutes). `src/find-links.ts` trims trailing punctuation (plan E4), skips code (E7), existing links, autolinks, reference definitions and HTML attributes (E8), and keeps http and https only. `src/replace-plain-links.ts` is the pipeline: an image check per unique URL (is-an-image-url), then title lookups started 100 ms apart (get-title-at-url), then the replacements from the end of the text. `src/template.ts` is the mustache renderer (hogan.js 3.0.2's output for variables, sections and comments) and the default template; `src/source.ts` names the site with tldts. `src/index.ts` is both builds' entry; `src/cli.ts` the bin. Only `cli.ts` touches the process or the filesystem.
+- Tests import `dist/`, never `src/`, and run against both builds (`test/helpers/builds.js`). Network tests go through `test/helpers/web.js` (every fetch to the fixture server, with the meant URL in `x-fixture-url`) or `test/helpers/stub-fetch.js` (in-process answers).
+- `test/golden/golden.test.js` lists every exception to 1.1.16's recorded answers by case name, each with its plan item. A new difference is either a bug to fix in `src/` or a new plan item ruled by the maintainer; never edit the recording.
+- `test/unit/hogan/hogan-3.0.2.json` holds hogan.js's answers for the template tests, recorded in a scratch project by `capture-hogan.cjs`.
+- `xo --fix` rewrites code: it removed `| null` from the public signatures once (1.1.16 accepted a null template). Stage your work first and read the diff it makes to `src/`. A local `const require = createRequire(...)` trips import-x/order; name it `load`.
+- The npm trusted publisher names `release.yml`, so renaming the file breaks publishing.
 
 ## everlast (session knowledge, load on demand)
 

@@ -1,8 +1,8 @@
 # After the maintainer approves a staged version on npmjs.com, run this with the version: it installs that version from the
 # registry on Linux, Windows and macOS with every Node line, and under Bun and Deno, runs the consumer fixtures against it
-# (requests go to the fixture server, never the real API), imports it in a fresh project outside the checkout, runs the bin
-# through npx, and verifies the registry signatures and the provenance attestation. The smoke checks use the golden
-# capture's offline answer: entityId 0 is refused with 1.1.7's "Need an entity id to read".
+# (requests go to the fixture server, never the internet), imports it in a fresh project outside the checkout, runs the bin
+# through npx, and verifies the registry signatures and the provenance attestation. The smoke checks need no network: a
+# text without links comes back as it is, and a template that does not compile throws a TypeError.
 name: verify-published
 
 on:
@@ -22,7 +22,7 @@ defaults:
 
 env:
   VERSION: ${{ inputs.version }}
-  CONSUMER_PACKAGE: "stack-exchange-markdown-retriever@${{ inputs.version }}"
+  CONSUMER_PACKAGE: "markdown-plain-link-replacer@${{ inputs.version }}"
 
 jobs:
   registry:
@@ -43,7 +43,7 @@ jobs:
           # The registry can take a few minutes to serve a version everywhere after approval.
           for attempt in $(seq 1 20); do
             if [ "$(npm view "$CONSUMER_PACKAGE" version 2>/dev/null)" = "$VERSION" ]; then
-              npm view stack-exchange-markdown-retriever dist-tags
+              npm view markdown-plain-link-replacer dist-tags
               exit 0
             fi
             echo "not on the registry yet (attempt $attempt of 20)"
@@ -90,9 +90,10 @@ jobs:
           cd "$project"
           npm init -y > /dev/null
           npm install --no-audit --no-fund "$CONSUMER_PACKAGE"
-          node -e "const r = require('stack-exchange-markdown-retriever'); try { r.retrieveMarkdown({entityId: 0}, () => {}); process.exit(1); } catch (error) { if (error.message !== 'Need an entity id to read') process.exit(1); } console.log('require ok');"
-          node --input-type=module -e "import {retrieveMarkdown} from 'stack-exchange-markdown-retriever'; await retrieveMarkdown({entityId: 0}).then(() => process.exit(1), error => { if (error.message !== 'Need an entity id to read') process.exit(1); }); console.log('import ok');"
-          test "$(npx --yes -- stack-exchange-markdown-retriever --version)" = "$VERSION"
+          node -e "const r = require('markdown-plain-link-replacer'); r.replacePlainLinks('no links', text => { if (text !== 'no links') process.exit(1); try { r.replacePlainLinks('x', {template: '{{#a}}'}); process.exit(1); } catch (error) { if (!(error instanceof TypeError)) process.exit(1); } console.log('require ok'); });"
+          node --input-type=module -e "import {replacePlainLinks} from 'markdown-plain-link-replacer'; if (await replacePlainLinks('no links') !== 'no links') process.exit(1); console.log('import ok');"
+          test "$(npx --yes -- markdown-plain-link-replacer --version)" = "$VERSION"
+          test "$(echo 'no links' | npx --yes -- markdown-plain-link-replacer)" = "no links"
           npm audit signatures
 
   bun:
@@ -125,7 +126,7 @@ jobs:
           cd "$project"
           echo '{}' > package.json
           bun add "$CONSUMER_PACKAGE"
-          bun -e "import {retrieveMarkdown} from 'stack-exchange-markdown-retriever'; await retrieveMarkdown({entityId: 0}).then(() => process.exit(1), error => { if (error.message !== 'Need an entity id to read') process.exit(1); }); console.log('bun ok');"
+          bun -e "import {replacePlainLinks} from 'markdown-plain-link-replacer'; if (await replacePlainLinks('no links') !== 'no links') process.exit(1); console.log('bun ok');"
 
   deno:
     name: deno
@@ -156,5 +157,5 @@ jobs:
       - name: deno imports the published package from npm
         working-directory: ${{ runner.temp }}
         run: |
-          printf '%s\n' "import lib from 'npm:$CONSUMER_PACKAGE';" "await lib.retrieveMarkdown({entityId: 0}).then(() => Deno.exit(1), error => { if (error.message !== 'Need an entity id to read') Deno.exit(1); }); console.log('deno ok');" > check.mjs
+          printf '%s\n' "import lib from 'npm:$CONSUMER_PACKAGE';" "if (await lib.replacePlainLinks('no links') !== 'no links') Deno.exit(1); console.log('deno ok');" > check.mjs
           deno run -A --minimum-dependency-age=0 check.mjs
