@@ -1,6 +1,6 @@
 {
   "name": "markdown-plain-link-replacer",
-  "version": "2.0.0-beta.1",
+  "version": "2.0.0",
   "description": "Replace plain links in markdown with titled links, looking up each page's title: http://example.com becomes \"[Example Domain](http://example.com)\", *example.com*, or any template you give. Library and command line tool; TypeScript, ESM and CommonJS, Node 20+.",
   "license": "MIT",
   "repository": {
