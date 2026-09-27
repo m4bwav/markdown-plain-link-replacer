@@ -20,7 +20,7 @@ A read-only review subagent (package-modernize prompts/review-subagent.md) compa
 
 1. **The 1.1.16 "smaller part of a larger URL" rule is gone** (`src/find-links.ts`, the loop in `findLinks`). 1.1.16 skipped an occurrence followed by any non-space character except `)`. 2.x replaces the truncated link and splits the URL, which no E-item covers. About 90 of 373 fuzz differences came from this.
    - Examples:
-     - `See https://lists.example.org/archive?from=ann@example.com&page=2 now` becomes `See [T](https://lists.example.org/archive?from=ann@example.com)&page=2 now`
+     - `See https://lists.example.org/archive?from=` + an email address + `&page=2 now` becomes a link that ends after the address, with `&page=2` left outside it
      - `http://example.com_v2/docs` becomes `[T](http://example.com)_v2/docs`
      - `Server http://example.com:8/x` becomes `[T](http://example.com):8/x`
      - `http://example.com:123456/x` becomes `[T](http://example.com:12345)6/x`
@@ -34,7 +34,7 @@ A read-only review subagent (package-modernize prompts/review-subagent.md) compa
 
 ## Risk
 
-4. **`AUTH_WINDOW` (256 characters) is an unlisted deviation.** For `https://example.com/` + 300 characters + `?e=user@host.com&x=1`, 1.1.16 requested the truncated `…?e=user@host.com` and left the text; 2.x requests and replaces the full URL. That is better behaviour, but it should become a numbered exception (E18) in the plan and CHANGELOG.
+4. **`AUTH_WINDOW` (256 characters) is an unlisted deviation.** For `https://example.com/` + 300 characters + `?e=` + an email address + `&x=1`, 1.1.16 requested the URL cut after the address and left the text; 2.x requests and replaces the full URL. That is better behaviour, but it should become a numbered exception (E18) in the plan and CHANGELOG.
 
 ## Nits
 
