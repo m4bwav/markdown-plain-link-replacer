@@ -37,8 +37,10 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
+      # The .npmrc cooldown (min-release-age=3) governs choosing new versions; audit signatures would also apply it to the
+      # locked ones, and the runtime dependencies are the maintainer's own releases, sometimes younger than three days.
       - name: Registry signatures of the installed packages
-        run: npm audit signatures
+        run: npm audit signatures --min-release-age=0
       - name: No vulnerable runtime dependency
         run: npm audit --omit=dev
 
