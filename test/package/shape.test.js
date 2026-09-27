@@ -133,10 +133,11 @@ test('the declaration files need no Node types', async () => {
 test('the declaration files describe both call forms and the exports', async () => {
   const [esm, cjs] = await Promise.all([read('dist/index.d.mts'), read('dist/index.d.cts')]);
   for (const types of [esm, cjs]) {
-    const callbackForm = 'declare function replacePlainLinks(markdown: string, callback: ReplacePlainLinksCallback, '
+    const generic = 'declare function replacePlainLinks<Markdown extends string | null | undefined>(markdown: Markdown, ';
+    const callbackForm = `${generic}callback: (markdown: Answer<Markdown>) => void, `
       + 'template?: string | null, options?: Omit<ReplacePlainLinksOptions, \'template\'>): void;';
     assert.ok(types.includes(callbackForm), types);
-    assert.ok(types.includes('declare function replacePlainLinks(markdown: string, options?: ReplacePlainLinksOptions): Promise<string>;'), types);
+    assert.ok(types.includes(`${generic}options?: ReplacePlainLinksOptions | null, template?: string | null): Promise<Answer<Markdown>>;`), types);
     assert.match(types, /markdownPlainLinkReplacer as default/u);
   }
 });

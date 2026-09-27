@@ -29,6 +29,9 @@ Called once with the new markdown.
 */
 export type ReplacePlainLinksCallback = (markdown: string) => void;
 
+// What a call answers: the new markdown for a string, and a null or undefined markdown as it was given.
+type Answer<Markdown> = Markdown extends string ? string : Markdown;
+
 const DEFAULT_TIMEOUT = 10_000;
 // The largest delay setTimeout accepts; longer ones fire at once.
 const MAX_TIMEOUT = 2_147_483_647;
@@ -169,8 +172,14 @@ Throws a TypeError, before any request, when `markdown` is neither a string nor 
 an options object, the template is not a string or uses a mustache feature it does not support, or `timeout` or `signal`
 has the wrong type.
 */
-export function replacePlainLinks(markdown: string, callback: ReplacePlainLinksCallback, template?: string | null, options?: Omit<ReplacePlainLinksOptions, 'template'>): void;
-export function replacePlainLinks(markdown: string, options?: ReplacePlainLinksOptions): Promise<string>;
+export function replacePlainLinks<Markdown extends string | null | undefined>(
+  markdown: Markdown,
+  callback: (markdown: Answer<Markdown>) => void,
+  template?: string | null,
+  options?: Omit<ReplacePlainLinksOptions, 'template'>,
+): void;
+// The third argument is 1.1.16's template place, for calls in the old order without a callback.
+export function replacePlainLinks<Markdown extends string | null | undefined>(markdown: Markdown, options?: ReplacePlainLinksOptions | null, template?: string | null): Promise<Answer<Markdown>>;
 export function replacePlainLinks(
   markdown: string,
   callbackOrOptions?: ReplacePlainLinksCallback | ReplacePlainLinksOptions | null,
@@ -178,13 +187,14 @@ export function replacePlainLinks(
   options?: Omit<ReplacePlainLinksOptions, 'template'>,
 ): Promise<string> | void;
 export function replacePlainLinks(
-  markdown: string,
-  callbackOrOptions?: ReplacePlainLinksCallback | ReplacePlainLinksOptions | null,
+  markdown: string | null | undefined,
+  callbackOrOptions?: ((markdown: never) => void) | ReplacePlainLinksOptions | null,
   template?: string | null,
   options?: Omit<ReplacePlainLinksOptions, 'template'>,
-): Promise<string> | void {
+): Promise<string | null | undefined> | void {
   if (typeof callbackOrOptions === 'function') {
-    const callback = callbackOrOptions;
+    // The overloads tie the callback's argument to the markdown's type.
+    const callback = callbackOrOptions as (markdown: string | null | undefined) => void;
     const settings = settingsFrom(options, template);
     const text = textOf(markdown);
     if (text === undefined) {

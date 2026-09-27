@@ -34,7 +34,23 @@ expectType<typeof replacePlainLinks>(linkReplacer.replacePlainLinks);
 declare const maybeCallback: ReplacePlainLinksCallback | undefined;
 export const wrapped: void | Promise<string> = replacePlainLinks('x', maybeCallback);
 
+// 1.1.16's order without a callback: the template in third place.
+const oldOrder = replacePlainLinks('See https://example.com', undefined, '{{title}}');
+const oldOrderNull = replacePlainLinks('See https://example.com', null, '{{title}}');
+
+// A null or undefined markdown is accepted, and answered as it was given.
+declare const maybeMarkdown: string | null | undefined;
+const promisedMaybe = replacePlainLinks(maybeMarkdown);
+const promisedNull = replacePlainLinks(null);
+replacePlainLinks(maybeMarkdown, markdown => {
+  expectType<string | null | undefined>(markdown);
+});
+
 export type Checks = [
+  Expect<Equal<typeof oldOrder, Promise<string>>>,
+  Expect<Equal<typeof oldOrderNull, Promise<string>>>,
+  Expect<Equal<typeof promisedMaybe, Promise<string | null | undefined>>>,
+  Expect<Equal<typeof promisedNull, Promise<null>>>,
   Expect<Equal<typeof promised, Promise<string>>>,
   Expect<Equal<typeof promisedWithout, Promise<string>>>,
   Expect<Equal<typeof called, void>>,
