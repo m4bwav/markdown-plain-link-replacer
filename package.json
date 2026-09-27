@@ -1,74 +1,85 @@
 {
   "name": "markdown-plain-link-replacer",
   "version": "1.1.16",
-  "description": "Script to replace a text link (ie http://whatever) with the title at the links webpage in markdown.",
-  "main": "./index.js",
-  "scripts": {
-    "test": "snyk test && xo && nyc ava",
-    "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "travis-after-success": "nyc report --reporter=text-lcov | coveralls"
-  },
+  "description": "Replace plain links in markdown with titled links, looking up each page's title: http://example.com becomes \"[Example Domain](http://example.com)\", *example.com*, or any template you give. Library and command line tool; TypeScript, ESM and CommonJS, Node 20+.",
+  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/m4bwav/markdown-plain-link-replacer.git"
+    "url": "git+https://github.com/m4bwav/markdown-plain-link-replacer.git"
   },
-  "homepage": "https://github.com/m4bwav/markdown-plain-link-replacer",
+  "homepage": "https://github.com/m4bwav/markdown-plain-link-replacer#readme",
   "bugs": {
-    "url": "http://github.com/m4bwav/markdown-plain-link-replacer/issues"
+    "url": "https://github.com/m4bwav/markdown-plain-link-replacer/issues"
   },
-  "author": "Mark Rogers",
-  "keywords": [
-    "markup",
-    "html",
-    "source",
-    "title",
-    "markdown"
-  ],
-  "tags": [
-    "markup",
-    "html",
-    "source",
-    "title",
-    "markdown"
-  ],
-  "bin": "cli.js",
+  "author": "Mark Rogers (https://www.markdavidrogers.com)",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "bin": {
+    "markdown-plain-link-replacer": "./dist/cli.mjs"
+  },
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "test": "npm run build && npm run test:dist",
+    "test:dist": "node --test test/golden/golden.test.js test/unit/find-links.test.js test/unit/template.test.js test/unit/source.test.js test/unit/arguments.test.js test/functional/replace-plain-links.test.js test/cli/cli.test.js test/package/shape.test.js",
+    "test:consumers": "npm run build && node --test test/consumers/consumers.test.js",
+    "test:live": "npm run build && node --test test/live/live.test.js",
+    "coverage": "npm run build && c8 --check-coverage --lines 95 --branches 90 --exclude-after-remap --include \"src/**\" --reporter text --reporter lcov node --test test/golden/golden.test.js test/unit/find-links.test.js test/unit/template.test.js test/unit/source.test.js test/unit/arguments.test.js test/functional/replace-plain-links.test.js test/cli/cli.test.js",
+    "lint": "xo",
+    "typecheck": "tsc --noEmit",
+    "check": "publint && attw --pack . && npm pack --dry-run",
+    "prepack": "npm run build",
+    "prepublishOnly": "npm run lint && npm run typecheck && npm run check && npm test"
+  },
   "files": [
-    "index.js",
-    "cli.js",
-    "lib"
+    "CHANGELOG.md",
+    "dist",
+    "!dist/cli.mjs.map"
   ],
-  "license": "MIT",
-  "dependencies": {
-    "array-iterate": "^1.1.0",
-    "bluebird": "~3.5.0",
-    "debug": "^3.1.0",
-    "get-title-at-url": "^1.1.6",
-    "he": "1.1.1",
-    "hogan.js": "3.0.2",
-    "is-an-image-url": "^1.0.3",
-    "is-url": "1.2.4",
-    "meow": "3.7.0",
-    "parse-domain": "0.2.1",
-    "replace-string-at-position": "^1.0.4",
-    "url-regex": "^4.1.1"
-  },
+  "keywords": [
+    "markdown",
+    "link",
+    "links",
+    "url",
+    "title",
+    "page title",
+    "linkify",
+    "replace",
+    "cli",
+    "typescript",
+    "esm",
+    "cjs"
+  ],
   "devDependencies": {
-    "ava": "^0.19.1",
-    "execa": "^0.6.3",
-    "coveralls": "^2.11.9",
-    "codecov.io": "^0.1.6",
-    "nyc": "^10.2.0",
-    "xo": "^0.18.1",
-    "snyk": "^1.29.0"
+    "@arethetypeswrong/cli": "^0.18.5",
+    "@tsconfig/node-ts": "^23.6.4",
+    "@tsconfig/node20": "^20.1.10",
+    "@types/node": "^24.13.6",
+    "c8": "^12.0.0",
+    "publint": "^0.3.24",
+    "tsdown": "0.23.0",
+    "typescript": "~6.0.3",
+    "xo": "^5.0.1"
   },
-  "xo": {
-    "rules": {
-      "xo/no-process-exit": "off",
-      "linebreak-style": "off",
-      "indent": [
-        "error",
-        2
-      ]
-    }
+  "allowScripts": {
+    "unrs-resolver": false
+  },
+  "dependencies": {
+    "get-title-at-url": "^3.0.0",
+    "is-an-image-url": "^2.0.0",
+    "replace-string-at-position": "^2.0.0",
+    "tldts": "^7.4.15"
   }
 }

@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node10",
+    "esModuleInterop": false,
+    "lib": [
+      "es2022"
+    ],
+    "types": [
+      "node"
+    ],
+    "target": "es2022",
+    "strict": true,
+    "skipLibCheck": false,
+    "outDir": "out"
+  },
+  "files": [
+    "index.ts"
+  ]
+}

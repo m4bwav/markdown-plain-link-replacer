@@ -4,8 +4,8 @@ backtracks catastrophically on crafted input (GHSA-v4rh-8p82-6h5w, no fixed vers
 
   (?:(?:[a-z]+:)?//|www\.)(?:\S+(?::\S*)?@)?(?:localhost|<IPv4>|<host><domain><tld>)(?::\d{2,5})?(?:[/?#][^\s"]*)?
 
-case-insensitive and global, where a host or domain label is `(?:[a-z¡-￿0-9]-*)*[a-z¡-￿0-9]+` and the
-top-level domain is `\.[a-z¡-￿]{2,}\.?`. This scanner returns the same matches, leftmost first, with the same
+case-insensitive and global, where a host or domain label is `(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+` and the
+top-level domain is `\.[a-z\u00a1-\uffff]{2,}\.?`. This scanner returns the same matches, leftmost first, with the same
 priorities the regex engine used (the longest user-info part that leaves a valid host, the most domain labels that leave a
 top-level domain, the longest top-level domain). Two bounds keep it linear where the regex was not: the user-info part is
 looked for within the 256 characters after the scheme, and a host name longer than 256 characters is not a link (DNS names
@@ -36,12 +36,12 @@ function isDigit(code: number): boolean {
   return code >= 0x30 && code <= 0x39;
 }
 
-// [a-z¡-￿0-9] with the i flag, per UTF-16 code unit as the regex (no u flag) saw it.
+// [a-z\u00a1-\uffff0-9] with the i flag, per UTF-16 code unit as the regex (no u flag) saw it.
 function isLabelChar(code: number): boolean {
   return isAsciiLetter(code) || isDigit(code) || code >= 0xA1;
 }
 
-// [a-z¡-￿] with the i flag.
+// [a-z\u00a1-\uffff] with the i flag.
 function isTldChar(code: number): boolean {
   return isAsciiLetter(code) || code >= 0xA1;
 }

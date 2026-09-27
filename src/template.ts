@@ -2,9 +2,9 @@
 The link templates. 1.1.16 compiled them with hogan.js 3.0.2 (mustache); 2.x renders the part of mustache a link template
 uses, with hogan's output for it (test/unit/template.test.js checks it against answers recorded from hogan.js 3.0.2):
 - {{name}} with the value HTML-escaped as hogan escapes (& < > ' "), {{{name}}} and {{&name}} unescaped;
-- {{#name}}...{{/name}} and {{^name}}...{{/name}}: shown when the value is non-empty, or empty; {{.}} inside is the value;
+- {{#name}}...{{/name}} and {{^name}}...{{/name}}: shown when the value is non-empty, or empty;
 - {{! comment}}; whitespace inside a tag; a section tag alone on its line removes that line, as the mustache spec says.
-The names are title, url and source; any other name is empty. Partials, delimiter changes and anything unclosed throw a
+The names are title, url and source; any other name, `.` and dotted names are empty, as in hogan. Partials, delimiter changes and anything unclosed throw a
 TypeError when the template is compiled, before any request.
 */
 
@@ -144,37 +144,25 @@ export function compileTemplate(template: string): Template {
     root.push({kind: 'text', text: template.slice(position)});
   }
 
-  return values => render(root, [values]);
+  return values => render(root, values);
 }
 
-function lookup(name: string, context: Array<TemplateValues | string>): string {
-  if (name === '.') {
-    const top = context.at(-1)!;
-    return typeof top === 'string' ? top : '[object Object]';
-  }
-
-  for (let index = context.length - 1; index >= 0; index--) {
-    const frame = context[index]!;
-    if (typeof frame === 'object' && Object.hasOwn(frame, name)) {
-      return frame[name as keyof TemplateValues];
-    }
-  }
-
-  return '';
+function lookup(name: string, values: TemplateValues): string {
+  return name === 'title' || name === 'url' || name === 'source' ? values[name] : '';
 }
 
-function render(nodes: Node[], context: Array<TemplateValues | string>): string {
+function render(nodes: Node[], values: TemplateValues): string {
   let output = '';
   for (const node of nodes) {
     if (node.kind === 'text') {
       output += node.text;
     } else if (node.kind === 'value') {
-      const value = lookup(node.name, context);
+      const value = lookup(node.name, values);
       output += node.escape ? escapeHtml(value) : value;
     } else {
-      const value = lookup(node.name, context);
+      const value = lookup(node.name, values);
       if (node.inverted ? value === '' : value !== '') {
-        output += render(node.children, node.inverted ? context : [...context, value]);
+        output += render(node.children, values);
       }
     }
   }

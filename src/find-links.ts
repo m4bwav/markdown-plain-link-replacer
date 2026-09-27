@@ -17,46 +17,34 @@ export type FoundLink = {
 const TRAILING = new Set(['.', ',', ';', ':', '!', '?', '\'', '*', '~', '`']);
 const PAIRS: Record<string, string> = {')': '(', ']': '[', '}': '{', '>': '<'};
 
-function count(text: string, character: string): number {
-  let total = 0;
-  for (const each of text) {
-    if (each === character) {
-      total++;
-    }
-  }
-
-  return total;
-}
-
 function trimEnd(text: string, start: number, end: number, hostEnd: number): number {
   let trimmed = end;
-  // 1.1.16 trimmed whitespace the host name allowed (the regex's label class reaches 　 and others).
+  // 1.1.16 trimmed whitespace the host name allowed (the regex's label class reaches U+3000 and other spaces).
   while (trimmed > hostEnd && /\s/u.test(text[trimmed - 1]!)) {
     trimmed--;
   }
 
-  for (;;) {
-    if (trimmed <= hostEnd) {
-      return trimmed;
+  // The brackets in the link, counted once and updated as characters come off the end.
+  const counts = new Map<string, number>();
+  for (let index = start; index < trimmed; index++) {
+    const character = text[index]!;
+    if ('()[]{}<>'.includes(character)) {
+      counts.set(character, (counts.get(character) ?? 0) + 1);
     }
-
-    const last = text[trimmed - 1]!;
-    if (TRAILING.has(last)) {
-      trimmed--;
-      continue;
-    }
-
-    const opening = PAIRS[last];
-    if (opening !== undefined) {
-      const link = text.slice(start, trimmed);
-      if (count(link, opening) < count(link, last)) {
-        trimmed--;
-        continue;
-      }
-    }
-
-    return trimmed;
   }
+
+  while (trimmed > hostEnd) {
+    const last = text[trimmed - 1]!;
+    const opening = PAIRS[last];
+    if (!TRAILING.has(last) && (opening === undefined || (counts.get(opening) ?? 0) >= (counts.get(last) ?? 0))) {
+      break;
+    }
+
+    counts.set(last, (counts.get(last) ?? 0) - 1);
+    trimmed--;
+  }
+
+  return trimmed;
 }
 
 const REFERENCES = /&(?:#(\d{1,7})|#[xX]([\da-fA-F]{1,6})|(amp|lt|gt|quot|apos|#39));/gu;
@@ -225,11 +213,21 @@ export function findLinks(markdown: string): FoundLink[] {
   }
 
   const code = codeRanges(markdown);
+  // The start of the current line, moved forward with the links, so a long line stays linear.
+  let lineStart = 0;
+  let scanned = 0;
   for (const {start, end: rawEnd, hostEnd} of raw) {
     const end = trimEnd(markdown, start, rawEnd, hostEnd);
     const text = markdown.slice(start, end);
-    const lineStart = Math.max(markdown.lastIndexOf('\n', start - 1), markdown.lastIndexOf('\r', start - 1)) + 1;
-    const before = markdown.slice(lineStart, start);
+    for (; scanned < start; scanned++) {
+      const character = markdown[scanned];
+      if (character === '\n' || character === '\r') {
+        lineStart = scanned + 1;
+      }
+    }
+
+    // The contexts below need only the characters just before the link.
+    const before = markdown.slice(Math.max(lineStart, start - 64), start);
     const after = markdown[end];
     if (
       /\]\(<?$/u.test(before)

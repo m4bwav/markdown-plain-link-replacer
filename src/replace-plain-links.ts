@@ -168,6 +168,7 @@ has the wrong type.
 */
 export function replacePlainLinks(markdown: string, callback: ReplacePlainLinksCallback, template?: string | null, options?: Omit<ReplacePlainLinksOptions, 'template'>): void;
 export function replacePlainLinks(markdown: string, options?: ReplacePlainLinksOptions): Promise<string>;
+export function replacePlainLinks(markdown: string, callbackOrOptions?: ReplacePlainLinksCallback | ReplacePlainLinksOptions | null, template?: string | null, options?: Omit<ReplacePlainLinksOptions, 'template'>): Promise<string> | void;
 export function replacePlainLinks(
   markdown: string,
   callbackOrOptions?: ReplacePlainLinksCallback | ReplacePlainLinksOptions | null,

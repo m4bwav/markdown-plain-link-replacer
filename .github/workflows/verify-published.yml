@@ -1,0 +1,160 @@
+# After the maintainer approves a staged version on npmjs.com, run this with the version: it installs that version from the
+# registry on Linux, Windows and macOS with every Node line, and under Bun and Deno, runs the consumer fixtures against it
+# (requests go to the fixture server, never the real API), imports it in a fresh project outside the checkout, runs the bin
+# through npx, and verifies the registry signatures and the provenance attestation. The smoke checks use the golden
+# capture's offline answer: entityId 0 is refused with 1.1.7's "Need an entity id to read".
+name: verify-published
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: The published version to verify, for example 2.0.0
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  VERSION: ${{ inputs.version }}
+  CONSUMER_PACKAGE: "stack-exchange-markdown-retriever@${{ inputs.version }}"
+
+jobs:
+  registry:
+    name: wait for the version on the registry
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: The version is valid and on npm
+        run: |
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::$VERSION is not a version number"
+            exit 1
+          fi
+          # The registry can take a few minutes to serve a version everywhere after approval.
+          for attempt in $(seq 1 20); do
+            if [ "$(npm view "$CONSUMER_PACKAGE" version 2>/dev/null)" = "$VERSION" ]; then
+              npm view stack-exchange-markdown-retriever dist-tags
+              exit 0
+            fi
+            echo "not on the registry yet (attempt $attempt of 20)"
+            sleep 30
+          done
+          echo "::error::$CONSUMER_PACKAGE is not on the registry after 10 minutes"
+          exit 1
+
+  node:
+    name: node ${{ matrix.node }} (${{ matrix.os }})
+    needs: registry
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-latest, macos-latest]
+        node: [20, 22, 24, 26]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      # The fixtures as they were at the release's tag.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: v${{ inputs.version }}
+          persist-credentials: false
+      # The fixtures take their TypeScript and Node types versions from the repository's lockfile, installed on Node 24.
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - run: npm ci
+      - name: Node ${{ matrix.node }} for the checks
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ matrix.node }}
+          package-manager-cache: false
+      - run: node --version && npm --version
+      - name: Consumer fixtures against the registry package
+        run: node --test test/consumers/consumers.test.js
+      # In an empty project outside the checkout: one known answer from require() and from import.
+      - name: The published package in a fresh project, its signatures and its provenance attestation
+        run: |
+          project="$RUNNER_TEMP/fresh-project"
+          mkdir -p "$project"
+          cd "$project"
+          npm init -y > /dev/null
+          npm install --no-audit --no-fund "$CONSUMER_PACKAGE"
+          node -e "const r = require('stack-exchange-markdown-retriever'); try { r.retrieveMarkdown({entityId: 0}, () => {}); process.exit(1); } catch (error) { if (error.message !== 'Need an entity id to read') process.exit(1); } console.log('require ok');"
+          node --input-type=module -e "import {retrieveMarkdown} from 'stack-exchange-markdown-retriever'; await retrieveMarkdown({entityId: 0}).then(() => process.exit(1), error => { if (error.message !== 'Need an entity id to read') process.exit(1); }); console.log('import ok');"
+          test "$(npx --yes -- stack-exchange-markdown-retriever --version)" = "$VERSION"
+          npm audit signatures
+
+  bun:
+    name: bun
+    needs: registry
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: v${{ inputs.version }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: latest
+      - run: npm ci
+      - run: bun --version
+      - name: Consumer fixtures under Bun against the registry package
+        run: node --test test/consumers/consumers.test.js
+        env:
+          CONSUMER_RUNTIMES: bun
+      - name: Bun installs and imports the published package in a fresh project
+        run: |
+          project="$RUNNER_TEMP/fresh-bun"
+          mkdir -p "$project"
+          cd "$project"
+          echo '{}' > package.json
+          bun add "$CONSUMER_PACKAGE"
+          bun -e "import {retrieveMarkdown} from 'stack-exchange-markdown-retriever'; await retrieveMarkdown({entityId: 0}).then(() => process.exit(1), error => { if (error.message !== 'Need an entity id to read') process.exit(1); }); console.log('bun ok');"
+
+  deno:
+    name: deno
+    needs: registry
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: v${{ inputs.version }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
+        with:
+          deno-version: 2.x
+      - run: npm ci
+      - run: deno --version
+      - name: Consumer fixtures under Deno against the registry package
+        run: node --test test/consumers/consumers.test.js
+        env:
+          CONSUMER_RUNTIMES: deno
+      # From an empty directory: next to the checkout's package.json, Deno would resolve npm: from its node_modules.
+      # Since Deno 2.9, npm: skips versions published in the last 24 hours by default; this job runs minutes after
+      # the approval, so it turns that policy off for this one command.
+      - name: deno imports the published package from npm
+        working-directory: ${{ runner.temp }}
+        run: |
+          printf '%s\n' "import lib from 'npm:$CONSUMER_PACKAGE';" "await lib.retrieveMarkdown({entityId: 0}).then(() => Deno.exit(1), error => { if (error.message !== 'Need an entity id to read') Deno.exit(1); }); console.log('deno ok');" > check.mjs
+          deno run -A --minimum-dependency-age=0 check.mjs

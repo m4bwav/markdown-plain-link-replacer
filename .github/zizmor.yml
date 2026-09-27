@@ -1,0 +1,6 @@
+# zizmor configuration (https://docs.zizmor.sh/configuration/).
+rules:
+  adhoc-packages:
+    # verify-published installs the version just published from the registry, outside any lockfile: that is what it verifies.
+    ignore:
+      - verify-published.yml

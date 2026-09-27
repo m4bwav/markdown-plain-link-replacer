@@ -1,0 +1,32 @@
+# Weekly update pull requests. Merge when CI is green; read the release notes before merging a major.
+# The actions are pinned to commit SHAs with the version in a comment; Dependabot updates both.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    # New releases wait a week before a pull request, so a compromised version is usually caught and pulled first (zizmor dependabot-cooldown).
+    cooldown:
+      default-days: 7
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+    ignore:
+      # TypeScript 7: xo 5 bundles TypeScript 6 and typescript-eslint accepts only TypeScript below 6.1 (checked 2026-09-25).
+      # Remove this rule when xo supports TypeScript 7 (ai-docs/HANDOFF.md, standing work).
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
+      # @types/node stays on Node 24, the line the package builds on (the library itself needs no Node types); bump it by hand.
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    # New releases wait a week before a pull request, so a compromised version is usually caught and pulled first (zizmor dependabot-cooldown).
+    cooldown:
+      default-days: 7
