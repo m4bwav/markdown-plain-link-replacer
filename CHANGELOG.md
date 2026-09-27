@@ -2,7 +2,7 @@
 
 All notable changes to this package are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the package uses [Semantic Versioning](https://semver.org/).
 
-## [2.0.0] - Unreleased
+## [2.0.0] - 2026-09-27
 
 **The compatibility promise.** `require('markdown-plain-link-replacer').replacePlainLinks(markdown, callback, template)` finds the same links 1.1.16 found, looks up the same pages and writes the same text, with the same default template shape `"[title](url)", *source*`. The test suite checks this against 164 calls and 18 command-line runs recorded from the published 1.1.16 against a local test server, on both builds and every supported Node line. The exceptions are listed below. Most are crashes, answers that never came, or text 1.1.16 changed without meaning to: titles now come from get-title-at-url 3; trailing punctuation stays out of links; links in code, autolinks and reference definitions are left alone; the text is no longer HTML-decoded; the default template no longer HTML-escapes; hosts 1.1.16 could not name no longer crash the process; bad templates throw; each page has a timeout; the command line tool reads stdin and reports errors.
 
