@@ -67,3 +67,6 @@ Append-only. One line per operation: `## [YYYY-MM-DD] op | title` where op is on
 
 ## [2026-09-27] release | beta verified, cleanup applied, 2.0.0 staged
 - 2.0.0-beta.1 VERIFIED (dist-tag next). post-merge-cleanup.sh --apply --tag-ruleset: #4-#11 closed, branches gone, 3 webhooks deleted, ruleset 24074613. v2.0.0 tagged 28a125e; release.yml success; waits for the 2FA approval.
+
+## [2026-09-27] release | 2.0.0 done
+- 2.0.0 VERIFIED (latest); 1.x deprecation read back. Repository security settings and the master ruleset were refused by the harness as permission grants; the commands are in HANDOFF for Mark. Skill C-20260927-4 (L-052 to L-054).
