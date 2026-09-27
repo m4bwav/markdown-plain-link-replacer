@@ -39,7 +39,7 @@ A read-only review subagent (package-modernize prompts/review-subagent.md) compa
 ## Nits
 
 5. **Template standalone lines** (`src/template.ts`, `standalone`): hogan strips a line whose only content is several section or comment tags and blanks; 2.x strips only a line with one tag.
-   - `{{^nope}}{{/nope}}\r\n{{&source}}`: hogan gives `e.com`, 2.x gives `\r\ne.com`.
+   - `{{^nope}}{{/nope}}\r\n{{&source}}`: hogan gives `e.com`, 2.x keeps the line break before e.com.
    - `{{! a }}  {{! b }}  \n{{title}}` keeps the `    \n` in 2.x.
    - `{{#url}}{{/url}} ` keeps the trailing space in 2.x.
    - Fix: strip the line when every tag on it is `#`, `^`, `/` or `!` and the rest is blanks. Add these to the hogan oracle's template list and re-record it in the scratch project.
