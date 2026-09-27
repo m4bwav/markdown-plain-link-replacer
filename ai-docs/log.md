@@ -53,3 +53,10 @@ Append-only. One line per operation: `## [YYYY-MM-DD] op | title` where op is on
 ## [2026-09-27] add | Phase 3: review findings
 - Read-only review subagent: 3 bugs (lost larger-link rule splits URLs; any "=" before a link skips it; quadratic backtick-run bookkeeping), 1 risk (auth window unlisted, E18 to add), 3 nits (template standalone lines with several tags, unlisted small differences, types for null markdown and the old no-callback order), test gaps. Written to ai-docs/notes/2026-09-27-phase-3-review-findings.md; not fixed yet (session context at 63 percent; continued in a fresh session).
 ## [2026-09-26] index | rebuilt (4 entries)
+
+## [2026-09-27] fix | Phase 3: every review finding fixed or recorded
+- Commits 5851240 (bugs 1-3), 6a048b5 (E18, accepted differences), 45e5915 (template lines, hogan oracle re-recorded in a scratch project), 5e19975 (types), 7146f05 (differential fixes). CI run 36293018870 green; summary posted on PR #12.
+- Larger-URL rule: 1.1.16 skipped a link whose next character (after its own trim: whitespace, trailing dots) was not whitespace or `)`. 2.x: skip unless `)` (not after a dot), whitespace (also trimmed whitespace like U+3000 inside the raw match), `"`, or a run of E4 punctuation/closing brackets ending at whitespace or the end. A bare `:` is not enough (port in `http://example.com:8/x`).
+- Method: offline differential of the published 1.1.16 (npm install in a scratch dir; Module._load stubs for is-an-image-url, get-title-at-url, parse-domain; setTimeout forced to 0; template `⟦{{{url}}}⟧`) vs dist/ with a stub fetch, on texts from the test PIECES plus whole-link seeds (without seeds almost no links form). 13 000 texts: only E3, E4 and the accepted "short link replaced inside a longer one" class remain.
+- Timing test flake fixed: lookups are scheduled index*100 ms from one start, so assert against the first lookup, not the previous one.
+- Dead end: bash heredocs and python -c strings ate backslashes twice more (known); use Edit.

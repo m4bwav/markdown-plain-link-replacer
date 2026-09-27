@@ -1,7 +1,7 @@
 ---
 title: "Phase 3 review findings on v2 (read-only subagent, 2026-09-27)"
 kind: note
-status: active
+status: resolved
 date: 2026-09-27
 verified: 2026-09-27
 stale_after: 2026-10-27
@@ -14,7 +14,7 @@ summary: "read before fixing the review: 3 bugs (the lost 1.1.16 larger-link rul
 
 ## Summary
 
-A read-only review subagent (package-modernize prompts/review-subagent.md) compared the published 1.1.16, run offline with `request` stubbed, against the v2 build. It fuzzed both, and fuzzed the template renderer against hogan.js 3.0.2. No real sites were contacted. It reviewed the working tree of 17b3578 (the scanner with right-to-left label tables). Every finding still needs fixing or answering, with a commit, and the summary goes on pull request #12.
+A read-only review subagent (package-modernize prompts/review-subagent.md) compared the published 1.1.16, run offline with `request` stubbed, against the v2 build. It fuzzed both, and fuzzed the template renderer against hogan.js 3.0.2. No real sites were contacted. It reviewed the working tree of 17b3578 (the scanner with right-to-left label tables). All fixed or recorded on 2026-09-27 (commits 5851240 to 7146f05); the summary is on pull request #12.
 
 ## Bugs
 
