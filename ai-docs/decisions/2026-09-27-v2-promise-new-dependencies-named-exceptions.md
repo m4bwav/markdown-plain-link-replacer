@@ -1,7 +1,7 @@
 ---
 title: "v2 keeps 1.1.16's links, lookups and text except fourteen named exceptions, on Mark's three new majors"
 kind: decision
-status: proposed
+status: accepted
 date: 2026-09-27
 verified: 2026-09-27
 stale_after: never

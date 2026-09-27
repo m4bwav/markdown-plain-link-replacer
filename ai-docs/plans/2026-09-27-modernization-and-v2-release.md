@@ -15,7 +15,7 @@ The package-modernize skill's eight phases applied to markdown-plain-link-replac
 
 ## Status
 
-Active. Phase 1 written 2026-09-27; waiting for Mark's rulings on the decisions table.
+Active. Plan ruled 2026-09-27: Mark accepted every recommendation (D1-D15, E1-E14) and asked for anything else that makes the package easy to use, maintain and useful; added: the CLI reads stdin (A1) and takes --timeout (in D6). Phase 2 under way.
 
 ## Goal
 
@@ -98,6 +98,13 @@ Numbers match the survey note's list. "E" marks a named exception in the golden 
 | E12 | non-ASCII and emoji paths | no request, left | looked up |
 | E13 | redirect loop | 22 requests | fetch's limit (20 redirects) |
 | E14 | CLI: no input, missing file, unknown flag, `-h`, `-i` without a value | `undefined` exit 0, or a stack trace | usage or the error on stderr, exit 1; `-h` prints the help |
+
+### Additions after the ruling
+
+| # | Addition | Why |
+|---|---|---|
+| A1 | The CLI reads the markdown from stdin when it is given `-` or no argument and stdin is not a terminal | `cat notes.md \| markdown-plain-link-replacer > out.md` is how a text filter is used; 1.1.16 needed `-i` or a quoted argument |
+| A2 | README section "What it requests": every non-image http(s) link is fetched twice at most, with the timeout, from the caller's network | the security note, where users read it |
 
 ## Proposed public API (v2)
 

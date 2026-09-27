@@ -18,3 +18,6 @@ Append-only. One line per operation: `## [YYYY-MM-DD] op | title` where op is on
 ## [2026-09-27] add | Phase 1: plan and decision record
 - ai-docs/plans/2026-09-27-modernization-and-v2-release.md (D1-D15, exceptions E1-E14) and ai-docs/decisions/2026-09-27-v2-promise-new-dependencies-named-exceptions.md (proposed). Checked 2026-09-27: tldts 7.4.15 (dep tldts-core), hogan.js 3.0.2 depends on nopt and mkdirp 0.3.0, url-regex GHSA-v4rh-8p82-6h5w covers <= 5.0.0 with no fix. Stop: waiting for Mark.
 ## [2026-09-26] index | rebuilt (3 entries)
+
+## [2026-09-27] update | Plan ruled
+- Mark: "Do all the recommendations and anything else you think will make the package easy to use and maintain and useful." Every recommendation stands (D1-D15, E1-E14); decision record accepted. Added A1 (CLI reads stdin) and A2 (README section on what it requests). Phase 2 starts on branch v2.
