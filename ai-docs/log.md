@@ -64,3 +64,6 @@ Append-only. One line per operation: `## [YYYY-MM-DD] op | title` where op is on
 ## [2026-09-27] add | Phase 4: dispositions.tsv written; cleanup and beta tag wait for Mark
 - Mark merged #12 (a3cbe55) before the pre-merge ruleset step. The permission classifier blocked post-merge-cleanup.sh (even its dry run) as an external write. Preflight for 2.0.0-beta.1: READY.
 - v2.0.0-beta.1 tagged, release.yml green, staged on npm; waits for the 2FA approval.
+
+## [2026-09-27] release | beta verified, cleanup applied, 2.0.0 staged
+- 2.0.0-beta.1 VERIFIED (dist-tag next). post-merge-cleanup.sh --apply --tag-ruleset: #4-#11 closed, branches gone, 3 webhooks deleted, ruleset 24074613. v2.0.0 tagged 28a125e; release.yml success; waits for the 2FA approval.

@@ -3,20 +3,19 @@
 <!-- Keep under 50 lines. Replace, never append. Written at the end of a work session so the next one starts without re-deriving state. -->
 
 ## Current state
-Phases 0 to 3 done (2026-09-27). Every Phase 3 review finding is fixed or recorded (commits 5851240 to 7146f05; see the log). The summary is posted on pull request #12 (https://github.com/m4bwav/markdown-plain-link-replacer/pull/12#issuecomment-5852474375). CI run 36293018870 is green on every job. 400 tests: 396 pass and 4 run in a child process. Coverage is 100 percent, and the golden files are unchanged since 87e88c6.
+2026-09-27: phases 0 to 5 done. #12 was merged as a3cbe55. The cleanup ran with Mark's go: PRs #4-#11 closed with comments, only the master branch left, 0 webhooks, tag ruleset 24074613 ("Tags only by admins") active, 0 Dependabot alerts. 2.0.0-beta.1 is published under dist-tag `next` and VERIFIED by verify-registry-npm.sh. v2.0.0 is tagged (28a125e, changelog dated 2026-09-27), and release.yml succeeded, so it is staged on npm.
 
-## Waiting on (2026-09-27, after Mark merged #12 as a3cbe55)
-- Phase 4 cleanup: ai-docs/notes/dispositions.tsv is written (close #4-#11 with comments and delete their branches, delete branch snyk-fix-a1249a24, delete webhooks Snyk x2 and Travis) plus `--tag-ruleset`. The agent's permission check blocked even the dry run of post-merge-cleanup.sh; it needs Mark's explicit go or his own run. Dependabot alerts: 0 open. The pre-merge ruleset step lapsed because the merge came first.
-- Phase 5: v2.0.0-beta.1 tagged (71af42e) and pushed; release.yml built, tested, staged on npm and made the GitHub Release (all green). Waiting for Mark to approve the staged version on npmjs.com with 2FA, then run `scripts/verify-registry-npm.sh 2.0.0-beta.1` and go on to Phase 6 (date the changelog, tag 2.0.0).
-- Cleanup: Mark said "run everything" (2026-09-27) but the permission classifier still blocked post-merge-cleanup.sh. Mark can run it himself, dry run first: `bash ../package-modernize/skills/package-modernize/scripts/post-merge-cleanup.sh m4bwav/markdown-plain-link-replacer 12 ai-docs/notes/dispositions.tsv --tag-ruleset`, then again with `--apply`. Or he can add a Bash allow rule for the script.
-
-## Decisions made this session
-- E18: an `@` more than 256 characters after the scheme is part of the path (plan, CHANGELOG, test).
-- 1.1.16's larger-URL rule is restored, with E4's punctuation allowed only when it ends the link. Rule details are in the log entry for 2026-09-27.
-- Accepted without a number: 1.1.16 replacing a short link inside a longer one. An offline differential against the published 1.1.16 found no other class.
-
-## Dead ends hit
-Heredocs and `python -c` still eat backslashes; use Edit. The random differential needs whole-link seeds, or almost no links form.
+## Waiting on
+Mark approves the staged 2.0.0 on npmjs.com with 2FA.
 
 ## Next single action
-After Mark's review, start Phase 4: a ruleset before the merge, then the cleanup list in the plan's appendix as ai-docs/notes/dispositions.tsv. The Dependabot alert on url-regex (master's 1.1.16 manifest) closes when v2 merges. Remove `--min-release-age=0` from ci.yml after 2026-09-30 if wanted.
+1. `bash ../package-modernize/skills/package-modernize/scripts/verify-registry-npm.sh markdown-plain-link-replacer 2.0.0 m4bwav/markdown-plain-link-replacer` (argument order: package, version, repo).
+2. Mark deprecates 1.x in his own terminal, with the message typed exactly:
+   `npm deprecate markdown-plain-link-replacer@"<2.0.0" "1.x is unmaintained; 2.0.0 is a TypeScript rewrite with the same answers, see the CHANGELOG"`
+   Then read it back: `npm view markdown-plain-link-replacer@1.1.16 deprecated`.
+3. Phase 7: inventory row in package-modernization, lessons into the skill (see the log), kickoff record corrected. Remove `--min-release-age=0` from ci.yml after 2026-09-30 if wanted.
+
+## Dead ends hit
+- verify-registry-npm.sh takes PACKAGE VERSION [REPO]. Passing the version first gives a 404.
+- Mark's own run of post-merge-cleanup.sh from PowerShell failed with "gh: command not found": PowerShell's `bash` is not Git Bash. Run the scripts from the agent's Bash tool.
+- The auto-mode classifier blocked GitHub writes until "Bash" was added to permissions.allow in ~/.claude/settings.json (2026-09-27). An autoMode prose entry for GitHub writes was refused as self-modification.
