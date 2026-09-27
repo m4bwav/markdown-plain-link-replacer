@@ -44,16 +44,17 @@ function trimmed(link) {
 }
 
 // 1.1.16's isUrlASmallerPartOfALargerUrl: a link followed by a character that is-url accepts after it (any but whitespace)
-// is left alone, unless that character is `)`. E4 adds `"`, and a run of the punctuation and closing brackets it trims when
+// is left alone, unless that character is `)`. It looked after its trimmed match: past trailing dots (so `.)` is a dot), and
+// past whitespace the host allowed (U+3000). E4 adds `"`, and a run of the punctuation and closing brackets it trims when
 // whitespace, the end or `"` follows the run.
-function isPartOfALargerUrl(rest) {
-  return !/^(?:\)|[.,;:!?'*~`)\]}>]*(?:[\s"]|$))/u.test(rest);
+function isPartOfALargerUrl(rest, match) {
+  return !(rest.startsWith(')') && !match.endsWith('.')) && !/^[.,;:!?'*~`)\]}>]*(?:[\s"]|$)/u.test(rest) && !/\s$/u.test(match);
 }
 
 function expectedUrls(text) {
   const urls = new Set();
   for (const {0: match, index} of text.matchAll(URL_REGEX_4)) {
-    if (isPartOfALargerUrl(text.slice(index + match.length))) {
+    if (isPartOfALargerUrl(text.slice(index + match.length), match)) {
       continue;
     }
 
@@ -174,6 +175,9 @@ for (const {name, lib} of builds) {
         ['Server http://example.com:8/x', []],
         ['http://example.com:123456/x', []],
         ['See http://example.com, and http://example.org: then (http://example.net).', ['http://example.com/', 'http://example.net/', 'http://example.org/']],
+        // 1.1.16 trimmed the whole match, then looked at the next character: U+3000 is whitespace the host name allowed.
+        ['a http://example.com　 b http://example.org　_v2', ['http://example.com/', 'http://example.org/']],
+        ['(http://example.com)x and http://example.org.)x and http://example.net.) end', ['http://example.com/', 'http://example.net/']],
         ['http://example.com|x and http://example.com^x and http://example.com}x', []],
         ['https://lists.example.org/archive?from=a@b.example.com&page=2 now', []],
         // Plan E18: an @ within 256 characters of the scheme is user info (the link is left, as 1.1.16 left it); past that,

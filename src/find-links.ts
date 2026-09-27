@@ -32,7 +32,8 @@ const CLOSING = new Set(Object.keys(PAIRS));
 // It allowed only whitespace and `)`. E4 adds `"` (left alone in isInLinkContext) and a run of the punctuation and closing
 // brackets it trims when whitespace or the end follows the run (`example.com, and`, not the port in `example.com:8/x`).
 function isLinkBoundary(text: string, index: number): boolean {
-  if (text[index] === ')') {
+  // 1.1.16 cut trailing dots first, so after a host and a dot it saw the dot, not the `)`.
+  if (text[index] === ')' && text[index - 1] !== '.') {
     return true;
   }
 
@@ -50,8 +51,9 @@ function isLinkBoundary(text: string, index: number): boolean {
 
 function trimEnd(text: string, start: number, end: number, hostEnd: number): number {
   let trimmed = end;
-  // 1.1.16 trimmed whitespace the host name allowed (the regex's label class reaches U+3000 and other spaces).
-  while (trimmed > hostEnd && /\s/u.test(text[trimmed - 1]!)) {
+  // 1.1.16 trimmed the whole match (String.prototype.trim), so whitespace the host name allowed goes too (the regex's label
+  // class reaches U+3000 and other spaces): a host followed by U+3000 ends before it.
+  while (trimmed > start && /\s/u.test(text[trimmed - 1]!)) {
     trimmed--;
   }
 
@@ -296,7 +298,8 @@ export function findLinks(markdown: string): FoundLink[] {
   let lineStart = 0;
   let scanned = 0;
   for (const {start, end: rawEnd, hostEnd} of raw) {
-    if (!isLinkBoundary(markdown, rawEnd)) {
+    // 1.1.16 looked at the character after its trimmed match, so whitespace trimmed off the host is a boundary too.
+    if (!isLinkBoundary(markdown, rawEnd) && !/\s/u.test(markdown[rawEnd - 1]!)) {
       continue;
     }
 
