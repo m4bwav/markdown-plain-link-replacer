@@ -176,6 +176,10 @@ for (const {name, lib} of builds) {
         ['See http://example.com, and http://example.org: then (http://example.net).', ['http://example.com/', 'http://example.net/', 'http://example.org/']],
         ['http://example.com|x and http://example.com^x and http://example.com}x', []],
         ['https://lists.example.org/archive?from=a@b.example.com&page=2 now', []],
+        // Plan E18: an @ within 256 characters of the scheme is user info (the link is left, as 1.1.16 left it); past that,
+        // it is part of the path.
+        [`https://example.com/${'a'.repeat(200)}?e=a@b.example.com&x=1`, []],
+        [`https://example.com/${'a'.repeat(300)}?e=a@b.example.com&x=1`, [`https://example.com/${'a'.repeat(300)}?e=a@b.example.com&x=1`]],
         // An = outside a tag is prose, as in 1.1.16 (review bug 2); inside a tag it is an attribute.
         ['Mirror = http://a.example.com/x', ['http://a.example.com/x']],
         ['a=http://a.example.com/x b=http://b.example.com/y', ['http://a.example.com/x', 'http://b.example.com/y']],

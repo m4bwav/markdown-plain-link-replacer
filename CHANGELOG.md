@@ -27,7 +27,7 @@ All notable changes to this package are documented here. The format follows [Kee
 - `www.example.com` and `//example.com` without a scheme are left as written. 1.1.16 crashed the process, or never called back.
 - A page that never answers leaves its link after the timeout (10 seconds by default). 1.1.16's title lookup waited for ever, so the callback never came.
 - Links with non-ASCII characters in the path are looked up. 1.1.16's request refused them.
-- Link scanning takes linear time. 1.1.16 used url-regex 4, whose expression can backtrack for minutes on crafted text (GHSA-v4rh-8p82-6h5w, no fixed version).
+- Link scanning takes linear time. 1.1.16 used url-regex 4, whose expression can backtrack for minutes on crafted text (GHSA-v4rh-8p82-6h5w, no fixed version). To stay linear, an `@` more than 256 characters after the scheme (an email address deep in a query string) is read as part of the path, so such a link is replaced whole; 1.1.16 read everything before the `@` as a user name and left the link.
 - A link that appears several times is looked up once. 1.1.16 checked each occurrence for an image.
 
 ### Added
