@@ -173,6 +173,9 @@ for (const {name, lib} of builds) {
         `http://x.co/${')'.repeat(1_000_000)}`,
         '`` ` '.repeat(200_000),
         'www.a.b-'.repeat(125_000),
+        'www.'.repeat(250_000),
+        `${'www.'.repeat(60)} `.repeat(4000),
+        `http://${'a'.repeat(1_000_000)}.com`,
         'ftp://a.co/x '.repeat(10_000),
         '\n'.repeat(1_000_000),
       ];

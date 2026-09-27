@@ -7,13 +7,13 @@ backtracks catastrophically on crafted input (GHSA-v4rh-8p82-6h5w, no fixed vers
 case-insensitive and global, where a host or domain label is `(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+` and the
 top-level domain is `\.[a-z\u00a1-\uffff]{2,}\.?`. This scanner returns the same matches, leftmost first, with the same
 priorities the regex engine used (the longest user-info part that leaves a valid host, the most domain labels that leave a
-top-level domain, the longest top-level domain). Two bounds keep it linear where the regex was not: the user-info part is
-looked for within the 256 characters after the scheme, and a host name longer than 256 characters is not a link (DNS names
-stop at 253). test/unit/scan-links.test.js compares it with url-regex 4.1.1's expression on generated text.
+top-level domain, the longest top-level domain). It stays linear where the regex was not: the host name's labels are
+measured once, right to left, for the whole text, so each possible start is answered in constant time, and the user-info
+part is looked for within the 256 characters after the scheme (the one bound the regex did not have).
+test/unit/find-links.test.js compares it with url-regex 4.1.1's expression on generated text.
 */
 
 const AUTH_WINDOW = 256;
-const HOST_MAX = 256;
 const IPV4 = /(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}/uy;
 
 /**
@@ -55,6 +55,12 @@ class Scanner {
   // What rest() answered for a position after a scheme: -2 not yet asked, -1 no match, else the match's end and host end.
   readonly #restEnd: Int32Array;
   readonly #restHostEnd: Int32Array;
+  // Host name labels, for a label starting at each position: where its run of label characters and hyphens ends, how many
+  // top-level-domain characters (letters) it starts with, and the start of the last label, along the chain of full labels
+  // from it, that can be the top-level domain (-1 for none).
+  readonly #labelEnd: Int32Array;
+  readonly #tldLength: Int32Array;
+  readonly #lastTld: Int32Array;
 
   constructor(text: string) {
     this.#text = text;
@@ -74,6 +80,29 @@ class Scanner {
 
     this.#restEnd = new Int32Array(n + 1).fill(-2);
     this.#restHostEnd = new Int32Array(n + 1);
+
+    this.#labelEnd = new Int32Array(n + 1);
+    this.#tldLength = new Int32Array(n + 1);
+    this.#lastTld = new Int32Array(n + 1);
+    this.#labelEnd[n] = n;
+    this.#lastTld[n] = -1;
+    for (let index = n - 1; index >= 0; index--) {
+      const code = text.charCodeAt(index);
+      this.#labelEnd[index] = code === 0x2D || isLabelChar(code) ? this.#labelEnd[index + 1]! : index;
+      this.#tldLength[index] = isTldChar(code) ? this.#tldLength[index + 1]! + 1 : 0;
+      const ownTld = this.#tldLength[index]! >= 2 ? index : -1;
+      // The regex takes as many domain labels as it can, so the deepest label that can be the top-level domain wins; the
+      // chain continues past this label only when it is a full label.
+      const deeper = this.#isFullLabel(index) ? this.#lastTld[this.#labelEnd[index]! + 1]! : -1;
+      this.#lastTld[index] = deeper === -1 ? ownTld : deeper;
+    }
+  }
+
+  // A label that is followed by a dot, and starts and ends with a label character (not a hyphen), as a host or domain label must.
+  #isFullLabel(start: number): boolean {
+    const end = this.#labelEnd[start]!;
+    return end > start && this.#text.charCodeAt(end) === 0x2E
+      && isLabelChar(this.#text.charCodeAt(start)) && isLabelChar(this.#text.charCodeAt(end - 1));
   }
 
   * links(): Generator<RawLink> {
@@ -182,62 +211,18 @@ class Scanner {
       return {end: from + ip[0].length, hostEnd: from + ip[0].length};
     }
 
-    // The labels: runs of label characters and hyphens, split by dots.
-    const limit = Math.min(this.#length, from + HOST_MAX + 1);
-    const labels: Array<{start: number; end: number}> = [];
-    let position = from;
-    for (;;) {
-      const labelStart = position;
-      while (position < limit && (isLabelChar(text.charCodeAt(position)) || text.charCodeAt(position) === 0x2D)) {
-        position++;
-      }
-
-      if (position >= limit && limit < this.#length) {
-        // Longer than a host name can be.
-        return undefined;
-      }
-
-      labels.push({start: labelStart, end: position});
-      if (text.charCodeAt(position) !== 0x2E) {
-        break;
-      }
-
-      position++;
-    }
-
-    // A full label, followed by a dot, starting and ending with a label character.
-    const isFullLabel = (index: number): boolean => {
-      const label = labels[index]!;
-      return index < labels.length - 1 && label.end > label.start
-        && isLabelChar(text.charCodeAt(label.start)) && isLabelChar(text.charCodeAt(label.end - 1));
-    };
-
-    if (!isFullLabel(0)) {
+    // The host label, then as many full domain labels as leave a top-level domain after them.
+    if (!this.#isFullLabel(from)) {
       return undefined;
     }
 
-    let domains = 0;
-    while (1 + domains < labels.length && isFullLabel(1 + domains)) {
-      domains++;
+    const tld = this.#lastTld[this.#labelEnd[from]! + 1]!;
+    if (tld === -1) {
+      return undefined;
     }
 
-    for (let count = domains; count >= 0; count--) {
-      const tld = labels[1 + count];
-      if (!tld) {
-        continue;
-      }
-
-      let tldEnd = tld.start;
-      while (tldEnd < tld.end && isTldChar(text.charCodeAt(tldEnd))) {
-        tldEnd++;
-      }
-
-      if (tldEnd - tld.start >= 2) {
-        return {end: text.charCodeAt(tldEnd) === 0x2E ? tldEnd + 1 : tldEnd, hostEnd: tldEnd};
-      }
-    }
-
-    return undefined;
+    const tldEnd = tld + this.#tldLength[tld]!;
+    return {end: text.charCodeAt(tldEnd) === 0x2E ? tldEnd + 1 : tldEnd, hostEnd: tldEnd};
   }
 }
 
