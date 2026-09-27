@@ -7,7 +7,8 @@ Phases 0 to 3 done (2026-09-27). Every Phase 3 review finding is fixed or record
 
 ## Waiting on (2026-09-27, after Mark merged #12 as a3cbe55)
 - Phase 4 cleanup: ai-docs/notes/dispositions.tsv is written (close #4-#11 with comments and delete their branches, delete branch snyk-fix-a1249a24, delete webhooks Snyk x2 and Travis) plus `--tag-ruleset`. The agent's permission check blocked even the dry run of post-merge-cleanup.sh; it needs Mark's explicit go or his own run. Dependabot alerts: 0 open. The pre-merge ruleset step lapsed because the merge came first.
-- Phase 5: `preflight-tag-npm.sh 2.0.0-beta.1` printed READY on master; next `npm version 2.0.0-beta.1 && git push --follow-tags origin master`, then Mark approves the staged beta on npmjs.com.
+- Phase 5: v2.0.0-beta.1 tagged (71af42e) and pushed; release.yml built, tested, staged on npm and made the GitHub Release (all green). Waiting for Mark to approve the staged version on npmjs.com with 2FA, then run `scripts/verify-registry-npm.sh 2.0.0-beta.1` and go on to Phase 6 (date the changelog, tag 2.0.0).
+- Cleanup: Mark said "run everything" (2026-09-27) but the permission classifier still blocked post-merge-cleanup.sh. Mark can run it himself, dry run first: `bash ../package-modernize/skills/package-modernize/scripts/post-merge-cleanup.sh m4bwav/markdown-plain-link-replacer 12 ai-docs/notes/dispositions.tsv --tag-ruleset`, then again with `--apply`. Or he can add a Bash allow rule for the script.
 
 ## Decisions made this session
 - E18: an `@` more than 256 characters after the scheme is part of the path (plan, CHANGELOG, test).
