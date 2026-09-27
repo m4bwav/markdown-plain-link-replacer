@@ -70,3 +70,4 @@ Append-only. One line per operation: `## [YYYY-MM-DD] op | title` where op is on
 
 ## [2026-09-27] release | 2.0.0 done
 - 2.0.0 VERIFIED (latest); 1.x deprecation read back. Repository security settings and the master ruleset were refused by the harness as permission grants; the commands are in HANDOFF for Mark. Skill C-20260927-4 (L-052 to L-054).
+- Mark ran scripts/maintainer-settings.cmd; every setting read back (branch ruleset 24077472). Package complete.
