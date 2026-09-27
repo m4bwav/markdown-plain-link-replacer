@@ -155,8 +155,9 @@ for (const {name, lib} of builds) {
       await lib.replacePlainLinks(`${base}/1 ${base}/2 ${base}/3 ${base}/4`);
       // The second request for each URL is its title lookup.
       const titles = ['1', '2', '3', '4'].map(id => log.filter(entry => entry.url === `${base}/${id}`)[1].at);
+      // Each is scheduled index * 100 ms after the first, so a timer that fires late shortens only the gap after it.
       for (let index = 1; index < titles.length; index++) {
-        assert.ok(titles[index] - titles[index - 1] >= 90, `lookup ${index + 1} came ${Math.round(titles[index] - titles[index - 1])} ms after the one before`);
+        assert.ok(titles[index] - titles[0] >= (index * 100) - 10, `lookup ${index + 1} came ${Math.round(titles[index] - titles[0])} ms after the first`);
       }
     });
 

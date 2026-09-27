@@ -43,9 +43,20 @@ function trimmed(link) {
   return link.slice(0, end);
 }
 
+// 1.1.16's isUrlASmallerPartOfALargerUrl: a link followed by a character that is-url accepts after it (any but whitespace)
+// is left alone, unless that character is `)`. E4 adds `"`, and a run of the punctuation and closing brackets it trims when
+// whitespace, the end or `"` follows the run.
+function isPartOfALargerUrl(rest) {
+  return !/^(?:\)|[.,;:!?'*~`)\]}>]*(?:[\s"]|$))/u.test(rest);
+}
+
 function expectedUrls(text) {
   const urls = new Set();
-  for (const [match] of text.matchAll(URL_REGEX_4)) {
+  for (const {0: match, index} of text.matchAll(URL_REGEX_4)) {
+    if (isPartOfALargerUrl(text.slice(index + match.length))) {
+      continue;
+    }
+
     const link = trimmed(match.trim());
     if (!/^https?:\/\//iu.test(link)) {
       continue;
@@ -81,8 +92,9 @@ function random(seed) {
   };
 }
 
-// Pieces of link-like text; none of them make a markdown context (no backtick, <, ], =, " or &) or an image extension.
-const PIECES = ['http', 'https', 'HTTP', 'ftp', '://', '//', 'www.', 'example', 'exa-mple', '.', '.com', '.co', '.uk', '.io', 'a', 'b1', '-', '@', 'user:pw@', ':', ':8080', ':1', '/', '/path', '?q=1', '#frag', ' ', ' ', ' ', '\n', 'localhost', '192.168.0.1', '10.0.0.256', 'café', 'x', '(', ')', ',', '.', '!', '?', '\'', '*', '~', ')', '　', '%20', '1', '2'];
+// Pieces of link-like text; none of them make a markdown context (no backtick, <, ], " or a character reference) or an image
+// extension. `=`, `&`, `_`, `|`, `{`, `}`, `^`, one-digit ports and letters after a host test the larger-URL rule.
+const PIECES = ['http', 'https', 'HTTP', 'ftp', '://', '//', 'www.', 'example', 'exa-mple', '.', '.com', '.co', '.uk', '.io', 'a', 'b1', '-', '@', 'user:pw@', ':', ':8080', ':1', ':8', '/', '/path', '?q=1', '#frag', ' ', ' ', ' ', '\n', 'localhost', '192.168.0.1', '10.0.0.256', 'café', 'x', '(', ')', ',', '.', '!', '?', '\'', '*', '~', ')', '　', '%20', '1', '2', '=', ' = ', '&', '_', '_v2', '|', '{', '}', '^', '.comx'];
 
 function generate(next) {
   let text = '';
@@ -157,6 +169,19 @@ for (const {name, lib} of builds) {
         ['http://a.example.com/{x}}', ['http://a.example.com/%7Bx%7D']],
         ['text [1]: http://a.example.com/x and http://b.example.com/y', ['http://b.example.com/y']],
         ['http://a.example.com/x\r\n[1]: http://b.example.com/y', ['http://a.example.com/x']],
+        // Part of a larger URL the scanner cannot read whole: left alone, as 1.1.16 did (review bug 1).
+        ['http://example.com_v2/docs', []],
+        ['Server http://example.com:8/x', []],
+        ['http://example.com:123456/x', []],
+        ['See http://example.com, and http://example.org: then (http://example.net).', ['http://example.com/', 'http://example.net/', 'http://example.org/']],
+        ['http://example.com|x and http://example.com^x and http://example.com}x', []],
+        ['https://lists.example.org/archive?from=a@b.example.com&page=2 now', []],
+        // An = outside a tag is prose, as in 1.1.16 (review bug 2); inside a tag it is an attribute.
+        ['Mirror = http://a.example.com/x', ['http://a.example.com/x']],
+        ['a=http://a.example.com/x b=http://b.example.com/y', ['http://a.example.com/x', 'http://b.example.com/y']],
+        ['1 == http://a.example.com/x', ['http://a.example.com/x']],
+        ['<a class="c" href = \'http://a.example.com/x\'>a</a>', []],
+        ['<A HREF=http://a.example.com/x>a</A>', []],
       ];
       for (const [markdown, urls] of cases) {
         assert.deepEqual(await urlsFound(lib, markdown), urls, JSON.stringify(markdown));
@@ -178,6 +203,9 @@ for (const {name, lib} of builds) {
         `http://${'a'.repeat(1_000_000)}.com`,
         'ftp://a.co/x '.repeat(10_000),
         '\n'.repeat(1_000_000),
+        // With a link, so the code-span pass runs (review bug 3).
+        `http://a.co/x ${'`a '.repeat(200_000)}`,
+        `http://a.co/x ${'`a ``b '.repeat(100_000)}`,
       ];
       for (const input of inputs) {
         const started = performance.now();

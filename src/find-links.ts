@@ -25,6 +25,28 @@ const PAIRS: Record<string, string> = {
   '}': '{',
   '>': '<',
 };
+const CLOSING = new Set(Object.keys(PAIRS));
+
+// What may follow a link as written. 1.1.16 left a link followed by any other character alone as "a smaller part of a larger
+// URL" (a host followed by `_v2/docs`, a one-digit port), which keeps the scanner from splitting a URL it cannot read whole.
+// It allowed only whitespace and `)`. E4 adds `"` (left alone in isInLinkContext) and a run of the punctuation and closing
+// brackets it trims when whitespace or the end follows the run (`example.com, and`, not the port in `example.com:8/x`).
+function isLinkBoundary(text: string, index: number): boolean {
+  if (text[index] === ')') {
+    return true;
+  }
+
+  for (let at = index; ; at++) {
+    const character = text[at];
+    if (character === undefined || character === '"' || /\s/u.test(character)) {
+      return true;
+    }
+
+    if (!TRAILING.has(character) && !CLOSING.has(character)) {
+      return false;
+    }
+  }
+}
 
 function trimEnd(text: string, start: number, end: number, hostEnd: number): number {
   let trimmed = end;
@@ -172,7 +194,12 @@ function codeSpans(paragraph: string, offset: number): Range[] {
   const byLength = new Map<number, number[]>();
   for (const [runIndex, run] of runs.entries()) {
     const length = run.end - run.start;
-    byLength.set(length, [...(byLength.get(length) ?? []), runIndex]);
+    const list = byLength.get(length);
+    if (list) {
+      list.push(runIndex);
+    } else {
+      byLength.set(length, [runIndex]);
+    }
   }
 
   const cursor = new Map<number, number>();
@@ -246,7 +273,7 @@ function isInLinkContext(before: string, after: string | undefined): boolean {
     || (after === '>' && before.endsWith('<'))
     || /\]\(<?$/u.test(before)
     || /\]:[\t ]*<?$/u.test(before)
-    || /=[\t ]*["']?$/u.test(before);
+    || /<[a-z][^<>]*\s[\w\-:]+[\t ]*=[\t ]*["']?$/iu.test(before);
 }
 
 /**
@@ -254,7 +281,8 @@ The plain links in `markdown` that 2.x may replace, in order. A link is left alo
 - already the target of a markdown link or image (`](url`), an autolink (`<url>`), or a reference definition (`[1]: url`);
 - an HTML attribute value, or followed by a double quote (1.1.16 left those too);
 - in a code span or code block;
-- without an http or https scheme (`www.example.com`, `//example.com`, `ftp://`).
+- without an http or https scheme (`www.example.com`, `//example.com`, `ftp://`);
+- followed by a character that is not whitespace, punctuation E4 trims, a closing bracket or `"` (part of a larger URL).
 */
 export function findLinks(markdown: string): FoundLink[] {
   const found: FoundLink[] = [];
@@ -268,6 +296,10 @@ export function findLinks(markdown: string): FoundLink[] {
   let lineStart = 0;
   let scanned = 0;
   for (const {start, end: rawEnd, hostEnd} of raw) {
+    if (!isLinkBoundary(markdown, rawEnd)) {
+      continue;
+    }
+
     const end = trimEnd(markdown, start, rawEnd, hostEnd);
     for (; scanned < start; scanned++) {
       const character = markdown[scanned];
