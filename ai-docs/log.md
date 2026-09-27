@@ -14,3 +14,7 @@ Append-only. One line per operation: `## [YYYY-MM-DD] op | title` where op is on
 
 ## [2026-09-27] update | package.json restored
 - 87e88c6 carried an unintended package.json change: `npm --prefix <scratch> init -y` ran in the repository because an earlier shell call had cd'd into it, and npm init normalised the file (git+ URL, bin object, directories, type). Restored from 6d43772. The tarball's package.json equals the original.
+
+## [2026-09-27] add | Phase 1: plan and decision record
+- ai-docs/plans/2026-09-27-modernization-and-v2-release.md (D1-D15, exceptions E1-E14) and ai-docs/decisions/2026-09-27-v2-promise-new-dependencies-named-exceptions.md (proposed). Checked 2026-09-27: tldts 7.4.15 (dep tldts-core), hogan.js 3.0.2 depends on nopt and mkdirp 0.3.0, url-regex GHSA-v4rh-8p82-6h5w covers <= 5.0.0 with no fix. Stop: waiting for Mark.
+## [2026-09-26] index | rebuilt (3 entries)
