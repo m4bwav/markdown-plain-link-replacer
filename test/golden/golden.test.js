@@ -175,7 +175,10 @@ async function run(lib, args, form, timeout) {
   }
 
   let isReturned = false;
-  const {promise: called, resolve: resolveCall} = Promise.withResolvers();
+  let resolveCall;
+  const called = new Promise(resolve => {
+    resolveCall = resolve;
+  });
   const calls = [];
   const realArgs = real.map(value => (isCallback(value)
     ? (...callbackArgs) => {

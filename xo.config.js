@@ -21,6 +21,8 @@ const xoConfig = [
   {
     space: 2,
     rules: {
+      // Promise.withResolvers arrived in Node 22; the package and its tests run on Node 20 (xo --fix once rewrote a test to it).
+      'unicorn/prefer-promise-with-resolvers': 'off',
       // The `v` flag is a syntax error in Safari 16 and Chrome before 112, which would stop the library loading at all in those browsers; `u` works everywhere.
       'require-unicode-regexp': ['error', {requireFlag: 'u'}],
     },

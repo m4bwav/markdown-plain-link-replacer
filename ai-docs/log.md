@@ -21,3 +21,20 @@ Append-only. One line per operation: `## [YYYY-MM-DD] op | title` where op is on
 
 ## [2026-09-27] update | Plan ruled
 - Mark: "Do all the recommendations and anything else you think will make the package easy to use and maintain and useful." Every recommendation stands (D1-D15, E1-E14); decision record accepted. Added A1 (CLI reads stdin) and A2 (README section on what it requests). Phase 2 starts on branch v2.
+
+## [2026-09-27] add | Phase 2: rewrite, golden test, canary
+- Branch v2: index.js, cli.js, lib/, jsconfig.json, .travis.yml, .vscode/ and the ava tests removed; infrastructure copied from stack-exchange-markdown-retriever (the closest finished run) and adapted. Runtime dependencies installed with `--min-release-age=0` on that one command: get-title-at-url 3.0.0, is-an-image-url 2.0.0 and replace-string-at-position 2.0.0 are younger than the three-day cooldown (the maintainer's own releases, D5); tldts 7.4.15.
+- src/: scan-links.ts (url-regex 4.1.1's matches in linear time), find-links.ts (trim E4, code E7, contexts E8, http/https only), template.ts (mustache subset with hogan's output), source.ts (tldts), replace-plain-links.ts, index.ts, cli.ts.
+- A scratch script ran every recorded case through the first build and listed the differences; every one matched a plan exception except three new ones, added to the plan as E15 (credentials: fetch refuses them), E16 (the Promise form) and E17 (a throwing callback is the caller's uncaught exception).
+- Golden test: 305 pass, 4 skipped (the two callback-throws cases on each build, run in a child process by the functional suite). E1 is applied mechanically: each default-template "[Page](url)" gets the title get-title-at-url 3 reads from that url, and a custom template's "Page" likewise; the pages whose reading changed otherwise are named exceptions. Deviation from plan D1: the old titles come from the recording (every ordinary fixture page read as "Page"), not from article-title as a dev dependency (cheerio 0.22 would bring old dev-only alerts).
+- Canary: first try with src/ untracked, so `git checkout -- src/` could not revert (both runs red; reverted by hand; skill lesson). After committing src (38fd6d4): `allowPrivateDomains: false` planted in src/source.ts, build, golden 303 pass 2 fail; `git checkout -- src/`, build, 305 pass 0 fail. check-golden-untouched.sh: 1.1.16.json, capture-1.1.16.cjs, codec.cjs, fixture-server.cjs unchanged since 87e88c6.
+- Template oracle: test/unit/hogan/capture-hogan.cjs run in the scratch project with hogan.js 3.0.2 installed, 128 entries; the renderer matches all (hogan renders {{.}} and dotted names as nothing, found by the oracle).
+- Scanner differential: 3000 generated texts against url-regex 4.1.1's expression written into the test, all equal; ten crafted 1 MB inputs each under 2 s.
+- xo --fix on src removed `| null` from the public signatures (skill L-025 again); restored by hand with an override that gives the reason.
+
+## [2026-09-27] add | Phase 2: verification
+- npm run lint (cache cleared), typecheck: clean. publint all good; attw green in node10, node16-cjs, node16-esm, bundler. Tarball 11 files, 52 kB (budget 60 kB).
+- npm run test:dist on Node 24.18: 400 tests, 396 pass, 4 skipped. Coverage 100 percent lines, branches and functions on every src file.
+- npm run test:consumers: 8 pass, 5 skipped (Bun and Deno, CI only).
+- npm run test:live (opt-in, real network): example.com gets "Example Domain", the Google logo PNG is left.
+- actionlint 1.7.12 clean, check-workflow-shell.py clean, zizmor --offline no findings. check-readme-images.mjs: npm badges ok, the CI badge 404s until ci.yml is on master.
