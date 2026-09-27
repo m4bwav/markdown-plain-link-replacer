@@ -20,10 +20,12 @@ A compiled template: call it with the values of one link.
 */
 export type Template = (values: TemplateValues) => string;
 
-const ESCAPES: Record<string, string> = {'&': '&amp;', '<': '&lt;', '>': '&gt;', '\'': '&#39;', '"': '&quot;'};
+const ESCAPES: Record<string, string> = {
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '\'': '&#39;', '"': '&quot;',
+};
 
 function escapeHtml(text: string): string {
-  return text.replaceAll(/[&<>'"]/gu, character => ESCAPES[character]!);
+  return text.replaceAll(/["&'<>]/gu, character => ESCAPES[character]!);
 }
 
 type Tag = {start: number; end: number; type: string; name: string};
@@ -37,39 +39,39 @@ function readTags(template: string): Tag[] {
       return tags;
     }
 
-    let type = template[start + 2] ?? '';
-    let close = '}}';
-    let contentStart = start + 3;
-    if (type === '{') {
-      close = '}}}';
-    } else if (!'#^/!&>=<$'.includes(type) || type === '') {
-      type = '';
-      contentStart = start + 2;
+    // The sigil after the braces; an ordinary {{name}} has none.
+    const sigil = template[start + 2] ?? '';
+    const type = ['{', '#', '^', '/', '!', '&', '>', '=', '<', '$'].includes(sigil) ? sigil : '';
+    if (['>', '=', '<', '$'].includes(type)) {
+      throw new TypeError(`template: {{${type}...}} tags (partials, delimiters, blocks) are not supported`);
     }
 
+    const close = type === '{' ? '}}}' : '}}';
+    const contentStart = start + 2 + type.length;
     const closeAt = template.indexOf(close, contentStart);
     if (closeAt === -1) {
       throw new TypeError(`template: the tag at position ${start} is not closed with ${close}`);
     }
 
-    const name = template.slice(contentStart, closeAt).trim();
-    if ('>=<$'.includes(type) && type !== '') {
-      throw new TypeError(`template: {{${type}...}} tags (partials, delimiters, blocks) are not supported`);
-    }
-
-    tags.push({start, end: closeAt + close.length, type, name});
+    tags.push({
+      start,
+      end: closeAt + close.length,
+      type,
+      name: template.slice(contentStart, closeAt).trim(),
+    });
     position = closeAt + close.length;
   }
 }
 
 // A section, inverted-section, closing or comment tag alone on its line takes the whole line with it (mustache "standalone").
 function standalone(template: string, tag: Tag): {start: number; end: number} {
-  if (!'#^/!'.includes(tag.type) || tag.type === '') {
+  if (!['#', '^', '/', '!'].includes(tag.type)) {
     return tag;
   }
 
+  const isBlank = (character: string | undefined) => character === ' ' || character === '\t';
   let lineStart = tag.start;
-  while (lineStart > 0 && (template[lineStart - 1] === ' ' || template[lineStart - 1] === '\t')) {
+  while (lineStart > 0 && isBlank(template[lineStart - 1])) {
     lineStart--;
   }
 
@@ -78,7 +80,7 @@ function standalone(template: string, tag: Tag): {start: number; end: number} {
   }
 
   let lineEnd = tag.end;
-  while (template[lineEnd] === ' ' || template[lineEnd] === '\t') {
+  while (isBlank(template[lineEnd])) {
     lineEnd++;
   }
 
@@ -102,37 +104,29 @@ export function compileTemplate(template: string): Template {
   let position = 0;
   for (const tag of readTags(template)) {
     const {start, end} = standalone(template, tag);
-    const children = stack.at(-1)!.children;
+    const {children} = stack.at(-1)!;
     if (start > position) {
       children.push({kind: 'text', text: template.slice(position, start)});
     }
 
     position = end;
-    switch (tag.type) {
-      case '!': {
-        break;
+    if (tag.type === '#' || tag.type === '^') {
+      const section: Node = {
+        kind: 'section',
+        name: tag.name,
+        inverted: tag.type === '^',
+        children: [],
+      };
+      children.push(section);
+      stack.push({name: tag.name, children: section.children});
+    } else if (tag.type === '/') {
+      const open = stack.pop()!;
+      if (stack.length === 0 || open.name !== tag.name) {
+        throw new TypeError(`template: {{/${tag.name}}} does not close an open section`);
       }
-
-      case '#':
-      case '^': {
-        const section: Node = {kind: 'section', name: tag.name, inverted: tag.type === '^', children: []};
-        children.push(section);
-        stack.push({name: tag.name, children: section.children});
-        break;
-      }
-
-      case '/': {
-        const open = stack.pop()!;
-        if (stack.length === 0 || open.name !== tag.name) {
-          throw new TypeError(`template: {{/${tag.name}}} does not close an open section`);
-        }
-
-        break;
-      }
-
-      default: {
-        children.push({kind: 'value', name: tag.name, escape: tag.type === ''});
-      }
+    } else if (tag.type !== '!') {
+      // {{name}} escapes; {{{name}}} and {{&name}} do not.
+      children.push({kind: 'value', name: tag.name, escape: tag.type === ''});
     }
   }
 
@@ -147,8 +141,10 @@ export function compileTemplate(template: string): Template {
   return values => render(root, values);
 }
 
+const NAMES = new Set(['title', 'url', 'source']);
+
 function lookup(name: string, values: TemplateValues): string {
-  return name === 'title' || name === 'url' || name === 'source' ? values[name] : '';
+  return NAMES.has(name) ? values[name as keyof TemplateValues] : '';
 }
 
 function render(nodes: Node[], values: TemplateValues): string {
@@ -174,8 +170,8 @@ function render(nodes: Node[], values: TemplateValues): string {
 // ampersand that would start a character reference (plan E6).
 function escapeMarkdown(title: string): string {
   return title
-    .replaceAll(/[\\`*_[\]<>]/gu, '\\$&')
-    .replaceAll(/&(?=#?\w+;)/gu, '\\&');
+    .replaceAll(/[*<>[\\\]_`]/gu, String.raw`\$&`)
+    .replaceAll(/&(?=#?\w+;)/gu, String.raw`\&`);
 }
 
 /**

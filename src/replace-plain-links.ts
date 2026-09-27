@@ -97,7 +97,7 @@ function textOf(markdown: unknown): string | undefined {
   throw new TypeError(`markdown must be a string, not ${describe(markdown)}`);
 }
 
-const sleep = (ms: number, signal: AbortSignal | undefined) => new Promise<void>(resolve => {
+const sleep = async (ms: number, signal: AbortSignal | undefined) => new Promise<void>(resolve => {
   if (ms === 0 || signal?.aborted) {
     resolve();
     return;
@@ -122,15 +122,16 @@ async function titleFor(url: string, delay: number, settings: Settings): Promise
   }
 
   const result = await getTitleAtUrl(url, {timeout: settings.timeout, signal: settings.signal});
-  return 'title' in result && result.title ? result.title : undefined;
+  // The result is {title} or {error} with the title undefined; a title is never empty.
+  return result.title;
 }
 
 async function replaceIn(markdown: string, settings: Settings): Promise<string> {
   const links = findLinks(markdown);
   // Each URL is looked up once, however often it appears.
   const urls = [...new Set(links.map(link => link.url).filter(url => url !== undefined))];
-  const images = await Promise.all(urls.map(async url => isAnImageUrl(url, {timeout: settings.timeout, signal: settings.signal})));
-  const pages = urls.filter((_url, index) => !images[index]);
+  const isImage = await Promise.all(urls.map(async url => isAnImageUrl(url, {timeout: settings.timeout, signal: settings.signal})));
+  const pages = urls.filter((_url, index) => isImage[index] === false);
   const titles = new Map<string, string>();
   await Promise.all(pages.map(async (url, index) => {
     const title = await titleFor(url, index * STAGGER, settings);
@@ -144,10 +145,12 @@ async function replaceIn(markdown: string, settings: Settings): Promise<string> 
   // From the end, so the positions of the links before stay valid.
   for (const link of links.toReversed()) {
     const title = link.url === undefined ? undefined : titles.get(link.url);
-    if (title !== undefined) {
-      const replacement = settings.template({title, url: link.text, source: sourceOf(link.url!)});
-      result = replaceStringAtPosition(result, link.text, replacement, link.start);
+    if (title === undefined) {
+      continue;
     }
+
+    const replacement = settings.template({title, url: link.text, source: sourceOf(link.url!)});
+    result = replaceStringAtPosition(result, link.text, replacement, link.start);
   }
 
   return result;
@@ -168,7 +171,12 @@ has the wrong type.
 */
 export function replacePlainLinks(markdown: string, callback: ReplacePlainLinksCallback, template?: string | null, options?: Omit<ReplacePlainLinksOptions, 'template'>): void;
 export function replacePlainLinks(markdown: string, options?: ReplacePlainLinksOptions): Promise<string>;
-export function replacePlainLinks(markdown: string, callbackOrOptions?: ReplacePlainLinksCallback | ReplacePlainLinksOptions | null, template?: string | null, options?: Omit<ReplacePlainLinksOptions, 'template'>): Promise<string> | void;
+export function replacePlainLinks(
+  markdown: string,
+  callbackOrOptions?: ReplacePlainLinksCallback | ReplacePlainLinksOptions | null,
+  template?: string | null,
+  options?: Omit<ReplacePlainLinksOptions, 'template'>,
+): Promise<string> | void;
 export function replacePlainLinks(
   markdown: string,
   callbackOrOptions?: ReplacePlainLinksCallback | ReplacePlainLinksOptions | null,
@@ -187,18 +195,18 @@ export function replacePlainLinks(
 
     // The callback runs outside the promise chain, so an exception it throws is the caller's uncaught exception, as a
     // callback's would be, and is never reported as a rejection.
-    replaceIn(text, settings).then(
-      result => {
+    // An abort (the only rejection) gives the callback the text unchanged.
+    replaceIn(text, settings)
+      .then(result => {
         queueMicrotask(() => {
           callback(result);
         });
-      },
-      () => {
+      })
+      .catch(() => {
         queueMicrotask(() => {
           callback(text);
         });
-      },
-    );
+      });
     return;
   }
 
@@ -207,7 +215,7 @@ export function replacePlainLinks(
   }
 
   const promiseOptions = callbackOrOptions ?? undefined;
-  // replacePlainLinks(markdown, undefined, template), 1.1.16's argument order without a callback, keeps its template.
+  // A template in third place with no callback, 1.1.16's argument order, is used.
   const settings = settingsFrom(promiseOptions, promiseOptions?.template ?? template);
   const text = textOf(markdown);
   return text === undefined ? Promise.resolve(markdown) : replaceIn(text, settings);

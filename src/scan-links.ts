@@ -14,7 +14,7 @@ stop at 253). test/unit/scan-links.test.js compares it with url-regex 4.1.1's ex
 
 const AUTH_WINDOW = 256;
 const HOST_MAX = 256;
-const IPV4 = /(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}/y;
+const IPV4 = /(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}/uy;
 
 /**
 One match: `start` and `end` index the text; `hostEnd` is where the host name (without a trailing dot) ends, so trimming never
@@ -158,8 +158,7 @@ class Scanner {
     }
 
     // `(?:[/?#][^\s"]*)?`
-    const code = text.charCodeAt(end);
-    if (code === 0x2F || code === 0x3F || code === 0x23) {
+    if ([0x2F, 0x3F, 0x23].includes(text.charCodeAt(end))) {
       end++;
       const stop = this.#nextSpace[end]!;
       while (end < stop && text.charCodeAt(end) !== 0x22) {

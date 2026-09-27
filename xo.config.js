@@ -41,11 +41,34 @@ const xoConfig = [
     },
   },
   {
+    // The scanner reproduces url-regex 4.1.1, a regular expression without the u flag, which matched UTF-16 code units: it
+    // reads code units (charCodeAt), not code points, to find the same links.
+    // The class reads top-down: the public generator first, then the private steps it calls.
+    files: ['src/scan-links.ts'],
+    rules: {
+      'unicorn/prefer-code-point': 'off',
+      'unicorn/consistent-class-member-order': 'off',
+    },
+  },
+  {
+    // 1.1.16 took any falsy markdown as "nothing to do" and a String object as its string; the golden capture pins both, so
+    // the check is JavaScript truthiness and an instanceof. It accepted a null template (the default), so the public
+    // signatures keep `null`.
+    files: ['src/replace-plain-links.ts'],
+    rules: {
+      '@typescript-eslint/strict-boolean-expressions': 'off',
+      'unicorn/no-instanceof-builtins': 'off',
+      '@typescript-eslint/no-restricted-types': 'off',
+    },
+  },
+  {
     // The tests and consumer fixtures replace fetch on purpose, to send the package's requests to the local fixture server.
-    // The wrapper objects are the odd inputs the golden capture recorded.
+    // The wrapper objects are the odd inputs the golden capture recorded. The links in the tests are http:// on purpose: the
+    // package replaces http and https links alike, and the golden capture recorded http ones.
     files: ['test/**/*.{js,cjs,mjs,ts}'],
     rules: {
       'unicorn/no-global-object-property-assignment': 'off',
+      'unicorn/prefer-https': 'off',
       'no-new-wrappers': 'off',
       'unicorn/new-for-builtins': 'off',
     },
