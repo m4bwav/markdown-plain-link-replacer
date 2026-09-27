@@ -1,0 +1,13 @@
+# Phase 4 cleanup (package-modernize post-merge-cleanup.sh), merge a3cbe55 of PR #12, 2026-09-27. Pull request lines also delete the PR's branch.
+pr	4	Closed by the 2.0.0 rewrite ({SHA}): meow is gone (the CLI uses node:util parseArgs), and Snyk no longer watches this repository.
+pr	5	Closed by the 2.0.0 rewrite ({SHA}): meow is gone (the CLI uses node:util parseArgs), and Snyk no longer watches this repository.
+pr	6	Closed by the 2.0.0 rewrite ({SHA}): 2.0.0 depends on get-title-at-url ^3.0.0, which has no request dependency, and Snyk no longer watches this repository.
+pr	7	Closed by the 2.0.0 rewrite ({SHA}): 2.0.0 depends on get-title-at-url ^3.0.0, which has no request dependency, and Snyk no longer watches this repository.
+pr	8	Closed by the 2.0.0 rewrite ({SHA}): 2.0.0 depends on get-title-at-url ^3.0.0, which has no request dependency, and Snyk no longer watches this repository.
+pr	9	Closed by the 2.0.0 rewrite ({SHA}): 2.0.0 depends on get-title-at-url ^3.0.0, which has no request dependency, and Snyk no longer watches this repository.
+pr	10	Closed by the 2.0.0 rewrite ({SHA}): 2.0.0 depends on get-title-at-url ^3.0.0, which has no request dependency, and Snyk no longer watches this repository.
+pr	11	Closed by the 2.0.0 rewrite ({SHA}): 2.0.0 depends on get-title-at-url ^3.0.0, which has no request dependency, and Snyk no longer watches this repository.
+branch	snyk-fix-a1249a24
+hook	14564190
+hook	278463577
+hook	83047827

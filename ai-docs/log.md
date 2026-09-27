@@ -60,3 +60,6 @@ Append-only. One line per operation: `## [YYYY-MM-DD] op | title` where op is on
 - Method: offline differential of the published 1.1.16 (npm install in a scratch dir; Module._load stubs for is-an-image-url, get-title-at-url, parse-domain; setTimeout forced to 0; template `⟦{{{url}}}⟧`) vs dist/ with a stub fetch, on texts from the test PIECES plus whole-link seeds (without seeds almost no links form). 13 000 texts: only E3, E4 and the accepted "short link replaced inside a longer one" class remain.
 - Timing test flake fixed: lookups are scheduled index*100 ms from one start, so assert against the first lookup, not the previous one.
 - Dead end: bash heredocs and python -c strings ate backslashes twice more (known); use Edit.
+
+## [2026-09-27] add | Phase 4: dispositions.tsv written; cleanup and beta tag wait for Mark
+- Mark merged #12 (a3cbe55) before the pre-merge ruleset step. The permission classifier blocked post-merge-cleanup.sh (even its dry run) as an external write. Preflight for 2.0.0-beta.1: READY.
