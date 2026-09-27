@@ -38,3 +38,14 @@ Append-only. One line per operation: `## [YYYY-MM-DD] op | title` where op is on
 - npm run test:consumers: 8 pass, 5 skipped (Bun and Deno, CI only).
 - npm run test:live (opt-in, real network): example.com gets "Example Domain", the Google logo PNG is left.
 - actionlint 1.7.12 clean, check-workflow-shell.py clean, zizmor --offline no findings. check-readme-images.mjs: npm badges ok, the CI badge 404s until ci.yml is on master.
+- Node 20.20.2, 22.23.3 and 26.10.0 (npx -p node@N): first Node 20 run failed 304 golden cases, because xo --fix had rewritten a test's `new Promise` into `Promise.withResolvers()` (Node 22+). Reverted; rule unicorn/prefer-promise-with-resolvers off with the reason. Then 396 pass, 4 skipped on each line.
+- Fresh clone of v2 in the scratchpad: npm ci, lint, typecheck, npm test 396 pass, check clean.
+- Lockfile: the single `npm install --min-release-age=0` of the four runtime dependencies had resolved the whole tree past the cooldown (35 locked versions younger than three days, 32 of them dev). Regenerated: npm install under the cooldown without the maintainer's three packages, then those three alone with --min-release-age=0; now only those three are younger than three days. `npm audit signatures` applies the cooldown to locked versions too, so ci.yml passes --min-release-age=0 to it (498 signatures, 127 attestations verified).
+
+## [2026-09-27] add | Phase 2 end: pull request, CI
+- Pushed v2; delete-branch-on-merge on. Pull request #12: https://github.com/m4bwav/markdown-plain-link-replacer/pull/12
+- First CI run failed one job (package shape and coverage): the crafted input 'www.a.b-' x 125 000 took 3.8 s under c8 (bound 2 s): each www. start re-read the long host run up to the 256-character cap. Fixed in src/scan-links.ts: the labels are measured once, right to left (label end, top-level-domain letters, the last usable top-level domain along a chain of full labels), so each start is constant time, and the host length cap is gone (closer to url-regex). Three more crafted inputs added; 13 inputs about 200 ms each under c8. Differential (3000 texts) and golden still pass.
+- CI run 36286840573: every job green (lint, package shape and coverage, Node 20/22/24/26 on Linux, Windows, macOS, Bun, Deno, ci).
+- One local test:dist run right after a lint showed 8 failures that three later runs did not repeat (timing-sensitive tests under load; not identified). Watch for them in CI.
+- Phase 3 review subagent running in the background (read-only).
+## [2026-09-26] index | rebuilt (3 entries)

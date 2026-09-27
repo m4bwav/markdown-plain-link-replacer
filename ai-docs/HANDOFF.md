@@ -3,17 +3,18 @@
 <!-- Keep under 50 lines. Replace, never append. Written at the end of a work session so the next one starts without re-deriving state. -->
 
 ## Current state
-Phase 0 of the package-modernize run is done (2026-09-27): survey, baseline, golden capture of the published 1.1.16 (`test/golden/`), everlast doc set, AGENTS.md. Findings: `ai-docs/notes/2026-09-27-phase-0-survey-baseline-and-capture.md`.
+Phases 0 to 2 done (2026-09-27). Plan ruled: every recommendation, plus A1 (CLI stdin) and A2 (README "what it requests"). Branch v2 pushed; pull request #12 open (https://github.com/m4bwav/markdown-plain-link-replacer/pull/12); CI run 36286840573 green on every job. 400 tests, 396 pass, 4 run in a child process; coverage 100 percent; golden files unchanged since 87e88c6.
 
 ## In progress
-Phase 1 written: `ai-docs/plans/2026-09-27-modernization-and-v2-release.md` (D1-D15, exceptions E1-E14) and `ai-docs/decisions/2026-09-27-v2-promise-new-dependencies-named-exceptions.md` (proposed). Stop: waiting for Mark's rulings.
+Phase 3: the independent read-only review (package-modernize prompts/review-subagent.md) was running when this was written. Its findings get fixed or answered, then the summary goes on the pull request.
 
 ## Decisions made this session
-None ruled yet. Recommended: fix the bugs in `replacePlainLinks` as named exceptions; titles follow get-title-at-url 3 (swapped mechanically in the golden test); url-regex, hogan.js and parse-domain replaced (inlined scanner, inlined renderer, tldts).
+- All in the plan (D1-D15, E1-E17, A1-A2) and the accepted decision record. E15 (credential links left), E16 (Promise form) and E17 (throwing callback is the caller's uncaught exception) were added during Phase 2 and are on the pull request's "For review" list.
+- The golden test takes old titles from the recording, not from article-title (D1 deviation, in the log).
+- The lockfile holds only the maintainer's three new majors past the three-day cooldown; ci.yml's `npm audit signatures` passes `--min-release-age=0` until they are older (remove the flag after 2026-09-30 if wanted).
 
 ## Dead ends hit
-- The old suite cannot be a baseline: xo 0.18 crashes on Node 24 and ava's tests fetch live pages whose titles changed.
-- request refuses a non-ASCII or emoji path, so those two capture cases make no request.
+See the log: the canary on an untracked src/, `--min-release-age=0` on a multi-package install, xo --fix and Promise.withResolvers, the 256-character host cap that made crafted input slow under c8. All are skill lessons L-047 to L-051.
 
 ## Next single action
-Take Mark's rulings on the plan's decisions table (first-hand, one question, if a new session: skill L-022), mark the decision record accepted, then start Phase 2 on branch v2 with the golden test.
+Fix or answer the review's findings, post its summary on pull request #12, and stop for Mark's review of the pull request. Then Phase 4 (ruleset before the merge, the cleanup list in the plan's appendix as ai-docs/notes/dispositions.tsv).
