@@ -49,3 +49,7 @@ Append-only. One line per operation: `## [YYYY-MM-DD] op | title` where op is on
 - One local test:dist run right after a lint showed 8 failures that three later runs did not repeat (timing-sensitive tests under load; not identified). Watch for them in CI.
 - Phase 3 review subagent running in the background (read-only).
 ## [2026-09-26] index | rebuilt (3 entries)
+
+## [2026-09-27] add | Phase 3: review findings
+- Read-only review subagent: 3 bugs (lost larger-link rule splits URLs; any "=" before a link skips it; quadratic backtick-run bookkeeping), 1 risk (auth window unlisted, E18 to add), 3 nits (template standalone lines with several tags, unlisted small differences, types for null markdown and the old no-callback order), test gaps. Written to ai-docs/notes/2026-09-27-phase-3-review-findings.md; not fixed yet (session context at 63 percent; continued in a fresh session).
+## [2026-09-26] index | rebuilt (4 entries)
