@@ -3,7 +3,7 @@ The link templates. 1.1.16 compiled them with hogan.js 3.0.2 (mustache); 2.x ren
 uses, with hogan's output for it (test/unit/template.test.js checks it against answers recorded from hogan.js 3.0.2):
 - {{name}} with the value HTML-escaped as hogan escapes (& < > ' "), {{{name}}} and {{&name}} unescaped;
 - {{#name}}...{{/name}} and {{^name}}...{{/name}}: shown when the value is non-empty, or empty;
-- {{! comment}}; whitespace inside a tag; a section tag alone on its line removes that line, as the mustache spec says.
+- {{! comment}}; whitespace inside a tag; a line of only section and comment tags and whitespace is removed, as in hogan.
 The names are title, url and source; any other name, `.` and dotted names are empty, as in hogan. Partials, delimiter changes and anything unclosed throw a
 TypeError when the template is compiled, before any request.
 */
@@ -63,36 +63,47 @@ function readTags(template: string): Tag[] {
   }
 }
 
-// A section, inverted-section, closing or comment tag alone on its line takes the whole line with it (mustache "standalone").
-function standalone(template: string, tag: Tag): {start: number; end: number} {
-  if (!['#', '^', '/', '!'].includes(tag.type)) {
-    return tag;
+const STANDALONE = new Set(['#', '^', '/', '!']);
+
+// The part of the template each tag takes. A line whose tags are all section, inverted-section, closing or comment tags, and
+// whose text is whitespace, is removed with its line break (mustache "standalone", as hogan.js 3.0.2's filterLine does it):
+// the first tag takes the line from its start, each tag the text up to the next, and the last the rest and the "\n". A line
+// ends at a "\n" outside a tag, or at the end of the template.
+function spans(template: string, tags: Tag[]): Array<{start: number; end: number}> {
+  const result = tags.map(({start, end}) => ({start, end}));
+  const lineEndAfter = (position: number) => {
+    const newline = template.indexOf('\n', position);
+    return newline === -1 ? template.length : newline;
+  };
+
+  for (let first = 0; first < tags.length;) {
+    let last = first;
+    let lineEnd = lineEndAfter(tags[first]!.end);
+    while (last + 1 < tags.length && tags[last + 1]!.start < lineEnd) {
+      last++;
+      lineEnd = lineEndAfter(tags[last]!.end);
+    }
+
+    const lineStart = template.lastIndexOf('\n', tags[first]!.start - 1) + 1;
+    const lineTags = tags.slice(first, last + 1);
+    const texts = [
+      template.slice(lineStart, tags[first]!.start),
+      ...lineTags.slice(1).map((tag, index) => template.slice(lineTags[index]!.end, tag.start)),
+      template.slice(tags[last]!.end, lineEnd),
+    ];
+    if (lineTags.every(tag => STANDALONE.has(tag.type)) && texts.every(text => !/\S/u.test(text))) {
+      result[first]!.start = lineStart;
+      for (let index = first; index < last; index++) {
+        result[index]!.end = tags[index + 1]!.start;
+      }
+
+      result[last]!.end = lineEnd === template.length ? lineEnd : lineEnd + 1;
+    }
+
+    first = last + 1;
   }
 
-  const isBlank = (character: string | undefined) => character === ' ' || character === '\t';
-  let lineStart = tag.start;
-  while (lineStart > 0 && isBlank(template[lineStart - 1])) {
-    lineStart--;
-  }
-
-  if (lineStart > 0 && template[lineStart - 1] !== '\n') {
-    return tag;
-  }
-
-  let lineEnd = tag.end;
-  while (isBlank(template[lineEnd])) {
-    lineEnd++;
-  }
-
-  if (template.startsWith('\r\n', lineEnd)) {
-    return {start: lineStart, end: lineEnd + 2};
-  }
-
-  if (template[lineEnd] === '\n') {
-    return {start: lineStart, end: lineEnd + 1};
-  }
-
-  return lineEnd === template.length ? {start: lineStart, end: lineEnd} : tag;
+  return result;
 }
 
 /**
@@ -102,8 +113,10 @@ export function compileTemplate(template: string): Template {
   const root: Node[] = [];
   const stack: Array<{name: string; children: Node[]}> = [{name: '', children: root}];
   let position = 0;
-  for (const tag of readTags(template)) {
-    const {start, end} = standalone(template, tag);
+  const tags = readTags(template);
+  const ranges = spans(template, tags);
+  for (const [index, tag] of tags.entries()) {
+    const {start, end} = ranges[index]!;
     const {children} = stack.at(-1)!;
     if (start > position) {
       children.push({kind: 'text', text: template.slice(position, start)});

@@ -1152,6 +1152,330 @@
 				"source": "example.com"
 			},
 			"output": "{{url}} $& $1 \\ `x` and {{url}} $&amp; $1 \\ `x`"
+		},
+		{
+			"template": "{{^nope}}{{/nope}}\r\n{{&source}}",
+			"values": {
+				"title": "Page",
+				"url": "http://www.example.com/page",
+				"source": "example.com"
+			},
+			"output": "example.com"
+		},
+		{
+			"template": "{{^nope}}{{/nope}}\r\n{{&source}}",
+			"values": {
+				"title": "Tom & Jerry <3 \"q\" 's'",
+				"url": "http://www.example.com/a?b=1&c=2",
+				"source": "example.com"
+			},
+			"output": "example.com"
+		},
+		{
+			"template": "{{^nope}}{{/nope}}\r\n{{&source}}",
+			"values": {
+				"title": "x",
+				"url": "https://someone.github.io/p",
+				"source": "someone.github.io"
+			},
+			"output": "someone.github.io"
+		},
+		{
+			"template": "{{^nope}}{{/nope}}\r\n{{&source}}",
+			"values": {
+				"title": "{{url}} $& $1 \\ `x`",
+				"url": "http://www.example.com/{{title}}",
+				"source": "example.com"
+			},
+			"output": "example.com"
+		},
+		{
+			"template": "{{! a }}  {{! b }}  \n{{title}}",
+			"values": {
+				"title": "Page",
+				"url": "http://www.example.com/page",
+				"source": "example.com"
+			},
+			"output": "Page"
+		},
+		{
+			"template": "{{! a }}  {{! b }}  \n{{title}}",
+			"values": {
+				"title": "Tom & Jerry <3 \"q\" 's'",
+				"url": "http://www.example.com/a?b=1&c=2",
+				"source": "example.com"
+			},
+			"output": "Tom &amp; Jerry &lt;3 &quot;q&quot; &#39;s&#39;"
+		},
+		{
+			"template": "{{! a }}  {{! b }}  \n{{title}}",
+			"values": {
+				"title": "x",
+				"url": "https://someone.github.io/p",
+				"source": "someone.github.io"
+			},
+			"output": "x"
+		},
+		{
+			"template": "{{! a }}  {{! b }}  \n{{title}}",
+			"values": {
+				"title": "{{url}} $& $1 \\ `x`",
+				"url": "http://www.example.com/{{title}}",
+				"source": "example.com"
+			},
+			"output": "{{url}} $&amp; $1 \\ `x`"
+		},
+		{
+			"template": "{{#url}}{{/url}} ",
+			"values": {
+				"title": "Page",
+				"url": "http://www.example.com/page",
+				"source": "example.com"
+			},
+			"output": ""
+		},
+		{
+			"template": "{{#url}}{{/url}} ",
+			"values": {
+				"title": "Tom & Jerry <3 \"q\" 's'",
+				"url": "http://www.example.com/a?b=1&c=2",
+				"source": "example.com"
+			},
+			"output": ""
+		},
+		{
+			"template": "{{#url}}{{/url}} ",
+			"values": {
+				"title": "x",
+				"url": "https://someone.github.io/p",
+				"source": "someone.github.io"
+			},
+			"output": ""
+		},
+		{
+			"template": "{{#url}}{{/url}} ",
+			"values": {
+				"title": "{{url}} $& $1 \\ `x`",
+				"url": "http://www.example.com/{{title}}",
+				"source": "example.com"
+			},
+			"output": ""
+		},
+		{
+			"template": "{{#title}}{{title}}{{/title}}\n{{url}}",
+			"values": {
+				"title": "Page",
+				"url": "http://www.example.com/page",
+				"source": "example.com"
+			},
+			"output": "Page\nhttp://www.example.com/page"
+		},
+		{
+			"template": "{{#title}}{{title}}{{/title}}\n{{url}}",
+			"values": {
+				"title": "Tom & Jerry <3 \"q\" 's'",
+				"url": "http://www.example.com/a?b=1&c=2",
+				"source": "example.com"
+			},
+			"output": "Tom &amp; Jerry &lt;3 &quot;q&quot; &#39;s&#39;\nhttp://www.example.com/a?b=1&amp;c=2"
+		},
+		{
+			"template": "{{#title}}{{title}}{{/title}}\n{{url}}",
+			"values": {
+				"title": "x",
+				"url": "https://someone.github.io/p",
+				"source": "someone.github.io"
+			},
+			"output": "x\nhttps://someone.github.io/p"
+		},
+		{
+			"template": "{{#title}}{{title}}{{/title}}\n{{url}}",
+			"values": {
+				"title": "{{url}} $& $1 \\ `x`",
+				"url": "http://www.example.com/{{title}}",
+				"source": "example.com"
+			},
+			"output": "{{url}} $&amp; $1 \\ `x`\nhttp://www.example.com/{{title}}"
+		},
+		{
+			"template": " \t{{#title}}\t{{^nope}} \n{{title}}\n{{/nope}}{{/title}}\n",
+			"values": {
+				"title": "Page",
+				"url": "http://www.example.com/page",
+				"source": "example.com"
+			},
+			"output": "Page\n"
+		},
+		{
+			"template": " \t{{#title}}\t{{^nope}} \n{{title}}\n{{/nope}}{{/title}}\n",
+			"values": {
+				"title": "Tom & Jerry <3 \"q\" 's'",
+				"url": "http://www.example.com/a?b=1&c=2",
+				"source": "example.com"
+			},
+			"output": "Tom &amp; Jerry &lt;3 &quot;q&quot; &#39;s&#39;\n"
+		},
+		{
+			"template": " \t{{#title}}\t{{^nope}} \n{{title}}\n{{/nope}}{{/title}}\n",
+			"values": {
+				"title": "x",
+				"url": "https://someone.github.io/p",
+				"source": "someone.github.io"
+			},
+			"output": "x\n"
+		},
+		{
+			"template": " \t{{#title}}\t{{^nope}} \n{{title}}\n{{/nope}}{{/title}}\n",
+			"values": {
+				"title": "{{url}} $& $1 \\ `x`",
+				"url": "http://www.example.com/{{title}}",
+				"source": "example.com"
+			},
+			"output": "{{url}} $&amp; $1 \\ `x`\n"
+		},
+		{
+			"template": "{{! two\nlines }}  \n{{title}}",
+			"values": {
+				"title": "Page",
+				"url": "http://www.example.com/page",
+				"source": "example.com"
+			},
+			"output": "Page"
+		},
+		{
+			"template": "{{! two\nlines }}  \n{{title}}",
+			"values": {
+				"title": "Tom & Jerry <3 \"q\" 's'",
+				"url": "http://www.example.com/a?b=1&c=2",
+				"source": "example.com"
+			},
+			"output": "Tom &amp; Jerry &lt;3 &quot;q&quot; &#39;s&#39;"
+		},
+		{
+			"template": "{{! two\nlines }}  \n{{title}}",
+			"values": {
+				"title": "x",
+				"url": "https://someone.github.io/p",
+				"source": "someone.github.io"
+			},
+			"output": "x"
+		},
+		{
+			"template": "{{! two\nlines }}  \n{{title}}",
+			"values": {
+				"title": "{{url}} $& $1 \\ `x`",
+				"url": "http://www.example.com/{{title}}",
+				"source": "example.com"
+			},
+			"output": "{{url}} $&amp; $1 \\ `x`"
+		},
+		{
+			"template": " {{#title}}\n{{title}}\n{{/title}}",
+			"values": {
+				"title": "Page",
+				"url": "http://www.example.com/page",
+				"source": "example.com"
+			},
+			"output": "Page\n"
+		},
+		{
+			"template": " {{#title}}\n{{title}}\n{{/title}}",
+			"values": {
+				"title": "Tom & Jerry <3 \"q\" 's'",
+				"url": "http://www.example.com/a?b=1&c=2",
+				"source": "example.com"
+			},
+			"output": "Tom &amp; Jerry &lt;3 &quot;q&quot; &#39;s&#39;\n"
+		},
+		{
+			"template": " {{#title}}\n{{title}}\n{{/title}}",
+			"values": {
+				"title": "x",
+				"url": "https://someone.github.io/p",
+				"source": "someone.github.io"
+			},
+			"output": "x\n"
+		},
+		{
+			"template": " {{#title}}\n{{title}}\n{{/title}}",
+			"values": {
+				"title": "{{url}} $& $1 \\ `x`",
+				"url": "http://www.example.com/{{title}}",
+				"source": "example.com"
+			},
+			"output": "{{url}} $&amp; $1 \\ `x`\n"
+		},
+		{
+			"template": "\r{{#title}}\r\n{{title}}{{/title}}",
+			"values": {
+				"title": "Page",
+				"url": "http://www.example.com/page",
+				"source": "example.com"
+			},
+			"output": "Page"
+		},
+		{
+			"template": "\r{{#title}}\r\n{{title}}{{/title}}",
+			"values": {
+				"title": "Tom & Jerry <3 \"q\" 's'",
+				"url": "http://www.example.com/a?b=1&c=2",
+				"source": "example.com"
+			},
+			"output": "Tom &amp; Jerry &lt;3 &quot;q&quot; &#39;s&#39;"
+		},
+		{
+			"template": "\r{{#title}}\r\n{{title}}{{/title}}",
+			"values": {
+				"title": "x",
+				"url": "https://someone.github.io/p",
+				"source": "someone.github.io"
+			},
+			"output": "x"
+		},
+		{
+			"template": "\r{{#title}}\r\n{{title}}{{/title}}",
+			"values": {
+				"title": "{{url}} $& $1 \\ `x`",
+				"url": "http://www.example.com/{{title}}",
+				"source": "example.com"
+			},
+			"output": "{{url}} $&amp; $1 \\ `x`"
+		},
+		{
+			"template": "a {{#title}}{{/title}}\n{{title}}",
+			"values": {
+				"title": "Page",
+				"url": "http://www.example.com/page",
+				"source": "example.com"
+			},
+			"output": "a \nPage"
+		},
+		{
+			"template": "a {{#title}}{{/title}}\n{{title}}",
+			"values": {
+				"title": "Tom & Jerry <3 \"q\" 's'",
+				"url": "http://www.example.com/a?b=1&c=2",
+				"source": "example.com"
+			},
+			"output": "a \nTom &amp; Jerry &lt;3 &quot;q&quot; &#39;s&#39;"
+		},
+		{
+			"template": "a {{#title}}{{/title}}\n{{title}}",
+			"values": {
+				"title": "x",
+				"url": "https://someone.github.io/p",
+				"source": "someone.github.io"
+			},
+			"output": "a \nx"
+		},
+		{
+			"template": "a {{#title}}{{/title}}\n{{title}}",
+			"values": {
+				"title": "{{url}} $& $1 \\ `x`",
+				"url": "http://www.example.com/{{title}}",
+				"source": "example.com"
+			},
+			"output": "a \n{{url}} $&amp; $1 \\ `x`"
 		}
 	]
 }

@@ -49,6 +49,16 @@ const templates = [
   '{{title}}{{url}}{{source}}',
   '{{title.length}}',
   '{{{title}}} and {{title}}',
+  // Lines of several section and comment tags (Phase 3 review nit 5).
+  '{{^nope}}{{/nope}}\r\n{{&source}}',
+  '{{! a }}  {{! b }}  \n{{title}}',
+  '{{#url}}{{/url}} ',
+  '{{#title}}{{title}}{{/title}}\n{{url}}',
+  ' \t{{#title}}\t{{^nope}} \n{{title}}\n{{/nope}}{{/title}}\n',
+  '{{! two\nlines }}  \n{{title}}',
+  ' {{#title}}\n{{title}}\n{{/title}}',
+  '\r{{#title}}\r\n{{title}}{{/title}}',
+  'a {{#title}}{{/title}}\n{{title}}',
 ];
 
 const entries = [];
