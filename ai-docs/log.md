@@ -71,3 +71,9 @@ Append-only. One line per operation: `## [YYYY-MM-DD] op | title` where op is on
 ## [2026-09-27] release | 2.0.0 done
 - 2.0.0 VERIFIED (latest); 1.x deprecation read back. Repository security settings and the master ruleset were refused by the harness as permission grants; the commands are in HANDOFF for Mark. Skill C-20260927-4 (L-052 to L-054).
 - Mark ran scripts/maintainer-settings.cmd; every setting read back (branch ruleset 24077472). Package complete.
+
+## [2026-09-29] add | GitHub wiki for 2.0.0
+- Wiki written and published with wikiwright (its fourth real run, released as 0.4.0): 10 pages, wiki commit ab33614 (plain fast-forward over the page Mark saved); check 0/0, outputs 55 checked 0 missing, live 10 pages 0 failures, everwrite 0 strong. Note: ai-docs/notes/2026-09-29-github-wiki.md, with the verification script and its outputs (Node 24.18.0 and 20.20.2) beside it.
+- Examples verified against the published 2.0.0 by the real host names through a local CONNECT proxy with a throwaway CA and TLS; Node 24 children through NODE_USE_ENV_PROXY=1, Node 20 through undici EnvHttpProxyAgent. Golden replay: 1.1.16 today 154/154 calls and 18/18 CLI runs identical; 2.0.0 with four patched copies, 54 same answer plus 55 title-only, 41 differences each a CHANGELOG line. npm test on an export: 400 tests, 396 pass, 4 skipped.
+- Found: the capture guard lets plain http through (net.connect passes an array; package-modernize L-124); README/help call a string the default template that is not; CHANGELOG says 164 golden calls (154); the CLI adds a trailing newline; next still points at the deprecated 2.0.0-beta.1. Not fixed: README and CHANGELOG ship in the package; dist-tags are Mark's.
+## [2026-09-29] index | rebuilt (5 entries)
