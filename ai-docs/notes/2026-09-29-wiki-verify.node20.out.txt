@@ -1,0 +1,723 @@
+## installed
+markdown-plain-link-replacer@2.0.0 on Node v20.20.2
+
+## lookups reach the fixture through
+undici EnvHttpProxyAgent preloaded (this Node ignores NODE_USE_ENV_PROXY)
+
+## esm exports
+[ 'default', 'replacePlainLinks' ]
+
+## esm default export
+{ replacePlainLinks: [Function: replacePlainLinks] }
+
+## cjs: require() returns
+Object [Module] {
+  default: { replacePlainLinks: [Function: replacePlainLinks] },
+  replacePlainLinks: [Function: replacePlainLinks]
+}
+
+## cjs keys
+[ 'default', 'replacePlainLinks' ]
+
+## cjs .replacePlainLinks is the ES module function
+different functions
+
+## package.json fields
+{
+  engines: { node: '>=20' },
+  bin: { 'markdown-plain-link-replacer': './dist/cli.mjs' },
+  exports: {
+    '.': { import: './dist/index.mjs', require: './dist/index.cjs' },
+    './package.json': './package.json'
+  },
+  dependencies: {
+    'get-title-at-url': '^3.0.0',
+    'is-an-image-url': '^2.0.0',
+    'replace-string-at-position': '^2.0.0',
+    tldts: '^7.4.15'
+  }
+}
+
+## installed dependencies
+get-title-at-url@3.0.0
+is-an-image-url@2.0.0
+replace-string-at-position@2.0.0
+tldts@7.4.16
+
+## deep import of markdown-plain-link-replacer/dist/index.mjs
+rejects ERR_PACKAGE_PATH_NOT_EXPORTED
+
+## home: node home.mjs
+Source: "[Bespin](https://en.wikipedia.org/wiki/Bespin)", *wikipedia.org*
+
+## home: node home.mjs, second run
+Source: "[Bespin](https://en.wikipedia.org/wiki/Bespin)", *wikipedia.org*
+
+## getting started: node callback.cjs
+  [Bespin](http://starwars.wikia.com/wiki/Bespin) from wikia.com
+
+## getting started: node promise.cjs
+See [Getting started](https://docs.example.com/guide).
+
+## edge: an https page whose certificate is not trusted (no NODE_EXTRA_CA_CERTS)
+https://example.com/ and "[Example Domain](http://example.com/)", *example.com*
+
+## home: the requests one link makes
+GET https://en.wikipedia.org/wiki/Bespin
+GET https://en.wikipedia.org/wiki/Bespin
+
+## runtimes: deno --version
+deno 2.9.6 (stable, release, x86_64-pc-windows-msvc)
+
+## runtimes: deno run --allow-net home-deno.mjs
+Source: "[Bespin](https://en.wikipedia.org/wiki/Bespin)", *wikipedia.org*
+
+## runtimes: deno run home-deno.mjs (no --allow-net, not a terminal)
+Source: https://en.wikipedia.org/wiki/Bespin
+
+## runtimes: bun --version
+1.4.2
+
+## runtimes: bun home.mjs
+Source: "[Bespin](https://en.wikipedia.org/wiki/Bespin)", *wikipedia.org*
+
+## runtimes: bun callback.cjs
+  [Bespin](http://starwars.wikia.com/wiki/Bespin) from wikia.com
+
+## package managers: pnpm 12.6.0 install exit 0, then the Home example
+Source: "[Bespin](https://en.wikipedia.org/wiki/Bespin)", *wikipedia.org*
+
+## package managers: yarn 1.22.22 install exit 0, then the Home example
+Source: "[Bespin](https://en.wikipedia.org/wiki/Bespin)", *wikipedia.org*
+--- stderr
+warning ..\..\package.json: No license field
+
+## package managers: yarn 4.18.1 install exit 0, then the Home example
+Source: "[Bespin](https://en.wikipedia.org/wiki/Bespin)", *wikipedia.org*
+
+## package managers: bun 1.4.2 install exit 0, then the Home example
+Source: "[Bespin](https://en.wikipedia.org/wiki/Bespin)", *wikipedia.org*
+
+## typescript: tsc version
+Version 6.0.3
+
+## typescript: ok.mts
+no errors
+
+## typescript: bad.mts
+types/bad.mts(3,57): error TS2769: No overload matches this call.
+  Overload 1 of 3, '(markdown: "Source: https://example.com", callback: (markdown: string) => void, template?: string | null | undefined, options?: Omit<ReplacePlainLinksOptions, "template"> | undefined): void', gave the following error.
+    Object literal may only specify known properties, and 'timeout' does not exist in type '(markdown: string) => void'.
+  Overload 2 of 3, '(markdown: "Source: https://example.com", options?: ReplacePlainLinksOptions | null | undefined, template?: string | null | undefined): Promise<string>', gave the following error.
+    Type 'string' is not assignable to type 'number'.
+  Overload 3 of 3, '(markdown: string, callbackOrOptions?: ReplacePlainLinksOptions | ReplacePlainLinksCallback | null | undefined, template?: string | ... 1 more ... | undefined, options?: Omit<...> | undefined): void | Promise<...>', gave the following error.
+    Type 'string' is not assignable to type 'number'.
+--- exit 2
+
+## typescript: nullable.mts
+types/nullable.mts(5,31): error TS18048: 'answer' is possibly 'undefined'.
+--- exit 2
+
+## typescript: cjs.cts
+no errors
+
+## api: the Promise form returns a Promise
+true
+
+## api: the callback form returns
+undefined
+
+## api: the callback runs after the call returns
+returned
+callback: See "[Example Domain](https://example.com/)", *example.com*
+
+## api: a falsy markdown, callback form (answered before the call returns)
+'' -> '' before return
+null -> null before return
+undefined -> undefined before return
+0 -> 0 before return
+false -> false before return
+
+## api: a falsy markdown, Promise form
+'' -> resolves ''
+null -> resolves null
+undefined -> resolves undefined
+0 -> resolves 0
+false -> resolves false
+NaN -> resolves NaN
+
+## api: a String object
+resolves 'See "[Example Domain](https://example.com/)", *example.com*'
+
+## api: options
+template: resolves 'See <https://example.com/> (Example Domain, example.com).'
+third argument, no callback (1.x order): resolves 'See [Example Domain](https://example.com/).'
+null options with a template third: resolves 'See [Example Domain](https://example.com/).'
+options.template wins over the third argument: resolves 'See Example Domain.'
+empty template means the default: resolves 'See "[Example Domain](https://example.com/)", *example.com*.'
+
+## api: callback form with template and options
+See https://example.com/slow?ms=1500 and [Example Domain](https://example.com/)
+
+## api: errors
+replacePlainLinks(42): throws TypeError: markdown must be a string, not 42
+replacePlainLinks(['https://example.com']): throws TypeError: markdown must be a string, not an array
+replacePlainLinks({}): throws TypeError: markdown must be a string, not an object
+replacePlainLinks('x', 'yes'): throws TypeError: the second argument must be a callback or an options object, not "yes"
+replacePlainLinks('x', {template: 42}): throws TypeError: template must be a string, not 42
+replacePlainLinks('x', {template: '{{> header}}'}): throws TypeError: template: {{>...}} tags (partials, delimiters, blocks) are not supported
+replacePlainLinks('x', {template: '{{=<% %>=}}'}): throws TypeError: template: {{=...}} tags (partials, delimiters, blocks) are not supported
+replacePlainLinks('x', {template: '{{title'}): throws TypeError: template: the tag at position 0 is not closed with }}
+replacePlainLinks('x', {template: '{{#title}}x'}): throws TypeError: template: the section {{#title}} is not closed
+replacePlainLinks('x', {timeout: 0}): throws TypeError: timeout must be a positive number of milliseconds, not 0
+replacePlainLinks('x', {timeout: '5000'}): throws TypeError: timeout must be a positive number of milliseconds, not "5000"
+replacePlainLinks('x', {signal: {}}): throws TypeError: signal must be an AbortSignal
+replacePlainLinks('x', callback, 42): throws TypeError: template must be a string, not 42
+replacePlainLinks('x', callback, undefined, 'fast'): throws TypeError: options must be an object, not "fast"
+replacePlainLinks('', {timeout: -1}): throws TypeError: timeout must be a positive number of milliseconds, not -1
+replacePlainLinks(42, callback): throws TypeError: markdown must be a string, not 42
+
+## api: signal
+already aborted: rejects AbortError: This operation was aborted
+already aborted, no links: rejects AbortError: This operation was aborted
+aborted with a reason while waiting: rejects Error: the user left
+AbortSignal.timeout(300): rejects TimeoutError: The operation was aborted due to timeout
+callback form, aborted: 'See https://example.com/never'
+
+## behaviour: what counts as the end of a link
+See https://example.com/page.
+=> See "[Page /page](https://example.com/page)", *example.com*.
+
+Is it https://example.com/page?
+=> Is it "[Page /page](https://example.com/page)", *example.com*?
+
+(see https://example.com/page).
+=> (see "[Page /page](https://example.com/page)", *example.com*).
+
+https://en.wikipedia.org/wiki/Bent_(band)
+=> "[Page /wiki/Bent\_(band)](https://en.wikipedia.org/wiki/Bent_(band))", *wikipedia.org*
+
+"https://example.com/page", she said
+=> "https://example.com/page", she said
+
+*https://example.com/page*
+=> *"[Page /page](https://example.com/page)", *example.com**
+
+Port http://example.com:8080/page
+=> Port "[Page /page](http://example.com:8080/page)", *example.com*
+
+## behaviour: left as written, never requested
+[docs](https://example.com/page)
+=> [docs](https://example.com/page)
+
+![logo](https://example.com/logo)
+=> ![logo](https://example.com/logo)
+
+<https://example.com/page>
+=> <https://example.com/page>
+
+[1]: https://example.com/page
+=> [1]: https://example.com/page
+
+<a href="https://example.com/page">x</a>
+=> <a href="https://example.com/page">x</a>
+
+`https://example.com/page`
+=> `https://example.com/page`
+
+www.example.com/page and //example.com/page
+=> www.example.com/page and //example.com/page
+
+ftp://example.com/file and mailto:someone@example.com
+=> ftp://example.com/file and mailto:someone@example.com
+
+https://user:secret@example.com/page
+=> https://user:secret@example.com/page
+
+https://example.com/cat.png
+=> https://example.com/cat.png
+
+## behaviour: left as written after a lookup
+Image by content type: https://example.com/logo
+=> Image by content type: https://example.com/logo
+
+Not found: https://example.com/missing
+=> Not found: https://example.com/missing
+
+Server error: https://example.com/down
+=> Server error: https://example.com/down
+
+Not HTML: https://example.com/plain and https://example.com/json
+=> Not HTML: https://example.com/plain and https://example.com/json
+
+No title: https://example.com/notitle
+=> No title: https://example.com/notitle
+
+## behaviour: the requests for a text with five links (the fixture saw, in order)
+"[Page /a](https://example.com/a)", *example.com* "[Page /b](https://example.com/b)", *example.com* "[Page /a](https://example.com/a)", *example.com* https://example.com/pic.png https://example.com/logo
+
+GET https://example.com/a
+GET https://example.com/b
+GET https://example.com/logo
+GET https://example.com/a
+GET https://example.com/b
+
+## behaviour: title lookups start 100 ms apart
+the whole call took at least 100 ms
+
+## behaviour: titles (read by get-title-at-url)
+https://docs.example.com/guide
+=> "[Getting started](https://docs.example.com/guide)", *example.com*
+
+https://example.com/colon
+=> "[Release notes: version 2](https://example.com/colon)", *example.com*
+
+https://example.com/heading
+=> "[Doc Title](https://example.com/heading)", *example.com*
+
+https://example.com/latin1
+=> "[Café au lait](https://example.com/latin1)", *example.com*
+
+https://example.com/gzip
+=> "[Gzipped Title](https://example.com/gzip)", *example.com*
+
+https://example.com/newline
+=> "[First line second line](https://example.com/newline)", *example.com*
+
+https://example.com/old
+=> "[New Home](https://example.com/old)", *example.com*
+
+https://example.com/contains-url
+=> "[See https://example.com/other for more](https://example.com/contains-url)", *example.com*
+
+## behaviour: {{source}}
+https://www.example.co.uk/page
+=> example.co.uk
+
+https://someone.github.io/page
+=> someone.github.io
+
+https://docs.example.com/guide
+=> example.com
+
+http://192.0.2.10/page
+=> 192.0.2.10
+
+http://localhost/page
+=> localhost
+
+http://intranet/page
+=> http://intranet/page
+
+http://www.example.notatld/page
+=> example.notatld
+
+## behaviour: requests for http://intranet/page
+0 served, 0 reached the proxy
+
+## behaviour: the default template escapes markdown characters in the title
+https://example.com/tricky
+=> "[Array\[0\] \*star\* \_under\_ \`tick\` \<b\>](https://example.com/tricky)", *example.com*
+
+https://example.com/amp
+=> "[Tom & Jerry](https://example.com/amp)", *example.com*
+
+https://example.com/mustache
+=> "[{{url}} and {{{title}}}](https://example.com/mustache)", *example.com*
+
+## behaviour: templates
+[{{title}}]({{url}})
+=> [Tom &amp; Jerry](https://example.com/amp)
+
+[{{{title}}}]({{url}})
+=> [Tom & Jerry](https://example.com/amp)
+
+[{{&title}}]({{url}})
+=> [Tom & Jerry](https://example.com/amp)
+
+{{title}} ({{source}})
+=> Tom &amp; Jerry (example.com)
+
+{{#title}}has a title{{/title}}
+=> has a title
+
+{{^nope}}no nope{{/nope}}
+=> no nope
+
+{{! a comment }}{{title}}
+=> Tom &amp; Jerry
+
+{{nope}}|{{title}}
+=> |Tom &amp; Jerry
+
+fixed text
+=> fixed text
+
+## behaviour: a link that appears several times is looked up once
+"[Page /twice](https://example.com/twice)", *example.com* and again "[Page /twice](https://example.com/twice)", *example.com*
+requests: 2
+
+## commands: --help
+
+  Replace plain links in markdown with titled links: each page is requested,
+  and its title and site replace the bare URL.
+
+  Usage
+    $ markdown-plain-link-replacer "<markdown>"
+    $ markdown-plain-link-replacer -i notes.md > notes-linked.md
+    $ cat notes.md | markdown-plain-link-replacer
+
+  Options
+    -i, --input <file>      Read the markdown from a file ("-" for stdin)
+    -t, --template <text>   A mustache template for each link, with {{title}},
+                            {{url}} and {{source}} (HTML-escaped; {{{title}}}
+                            is not). Default: "[{{title}}]({{url}})", *{{source}}*
+    --timeout <ms>          Wait this long for each page (default 10000)
+    -h, --help              Show this help
+    -v, --version           Show the version
+
+  With no markdown argument and no -i, the markdown is read from stdin.
+  The result goes to stdout. Links whose page fails or has no title are
+  left as they are.
+
+  Exit codes
+    0  the markdown was printed
+    1  bad arguments, or the input could not be read
+
+  Example
+    $ markdown-plain-link-replacer "Source: https://example.com"
+    Source: "[Example Domain](https://example.com)", *example.com*
+
+## commands: help stream and exit code
+exit 0, stdout 1191 characters, stderr 0
+
+## commands: -h equals --help
+true
+
+## commands: markdown-plain-link-replacer --version
+2.0.0
+exit 0
+
+## commands: markdown-plain-link-replacer -v
+2.0.0
+exit 0
+
+## commands: markdown-plain-link-replacer "Source: https://example.com"
+Source: "[Example Domain](https://example.com)", *example.com*
+exit 0
+
+## commands: markdown-plain-link-replacer "Source: https://example.com" -t "[{{title}}]({{url}})"
+Source: [Example Domain](https://example.com)
+exit 0
+
+## commands: markdown-plain-link-replacer "Tom: https://example.com/amp"
+Tom: "[Tom & Jerry](https://example.com/amp)", *example.com*
+exit 0
+
+## commands: markdown-plain-link-replacer "Tom: https://example.com/amp" -t ""[{{title}}]({{url}})", *{{source}}*"
+Tom: "[Tom &amp; Jerry](https://example.com/amp)", *example.com*
+exit 0
+
+## commands: markdown-plain-link-replacer -i notes.md
+From a file: "[Example Domain](https://example.com/)", *example.com*
+
+And an image: https://example.com/cat.png
+exit 0
+
+## commands: markdown-plain-link-replacer -i notes.md -t "<{{url}}> {{title}}"
+From a file: <https://example.com/> Example Domain
+
+And an image: https://example.com/cat.png
+exit 0
+
+## commands: printf "From stdin: https://example.com/" | markdown-plain-link-replacer
+From stdin: "[Example Domain](https://example.com/)", *example.com*
+exit 0
+
+## commands: printf "From stdin: https://example.com/" | markdown-plain-link-replacer -
+From stdin: "[Example Domain](https://example.com/)", *example.com*
+exit 0
+
+## commands: printf "From stdin: https://example.com/" | markdown-plain-link-replacer -i -
+From stdin: "[Example Domain](https://example.com/)", *example.com*
+exit 0
+
+## commands: markdown-plain-link-replacer
+
+exit 0
+
+## commands: markdown-plain-link-replacer "https://example.com/slow?ms=1500" --timeout 300
+https://example.com/slow?ms=1500
+exit 0
+
+## commands: markdown-plain-link-replacer "https://example.com/slow?ms=1500" --timeout=3000
+"[Slow Page](https://example.com/slow?ms=1500)", *example.com*
+exit 0
+
+## commands: markdown-plain-link-replacer "first https://example.com/" "second https://example.com/new"
+first "[Example Domain](https://example.com/)", *example.com*
+exit 0
+
+## commands: markdown-plain-link-replacer -i missing.md
+error: cannot read missing.md: ENOENT
+exit 1
+
+## commands: markdown-plain-link-replacer -i
+error: Option '-i, --input <value>' argument missing
+Run markdown-plain-link-replacer --help for the usage.
+exit 1
+
+## commands: markdown-plain-link-replacer --timeout soon x
+error: --timeout takes a positive number of milliseconds, not "soon"
+exit 1
+
+## commands: markdown-plain-link-replacer --timeout 0 x
+error: --timeout takes a positive number of milliseconds, not "0"
+exit 1
+
+## commands: markdown-plain-link-replacer --foo x
+error: Unknown option '--foo'. To specify a positional argument starting with a '-', place it at the end of the command after '--', as in '-- "--foo"
+Run markdown-plain-link-replacer --help for the usage.
+exit 1
+
+## commands: markdown-plain-link-replacer x -t "{{> partial}}"
+TypeError: template: {{>...}} tags (partials, delimiters, blocks) are not supported
+exit 1
+
+## commands: markdown-plain-link-replacer www.example.com/page
+www.example.com/page
+exit 0
+
+## commands: notes-linked.md after -i notes.md > notes-linked.md (JSON string)
+"From a file: \"[Example Domain](https://example.com/)\", *example.com*\n\nAnd an image: https://example.com/cat.png\n\n"
+
+## commands: npx markdown-plain-link-replacer (in this project)
+Source: "[Example Domain](https://example.com)", *example.com*
+
+## recipes: hogansample.md with -t "[{{title}}]({{url}}) from {{source}}": the lines that changed
+[Pandemic 2 and Other Free Internet Games @ CrazyMonkeyGames.com](http://www.crazymonkeygames.com/Pandemic-2.html) from crazymonkeygames.com
+
+## recipes: hogansample.md: the same as test/fixtures/hogansample-output.md?
+yes, line for line
+
+## recipes: wikialistsample.md: the lines that changed
+"[TranLang III communications module](http://starwars.wikia.com/wiki/TranLang_III_communications_module)", *wikia.com*
+
+## recipes: wikialistsample.md: the same as test/fixtures/wikialistsample-output.md?
+yes, line for line
+
+## recipes: markdown-plain-link-replacer -i answer.md -t "[{{title}}]({{url}})"
+![In-game picture of Madagascar][1]
+
+The country of Madagascar is only reachable through sea. This means that if the country closes its shipyard before I reach it there is no way I can possibly win… or is there?
+
+How can I work around this?
+
+[Pandemic 2 and Other Free Internet Games @ CrazyMonkeyGames.com](http://www.crazymonkeygames.com/Pandemic-2.html)
+  [1]: http://i.stack.imgur.com/0hCCA.png
+
+## recipes: a whole README, with one deadline
+TimeoutError
+Docs: https://docs.example.com/guide
+Slow: https://example.com/never
+
+
+## recipes: a whole README, with a short timeout per page instead
+Docs: "[Getting started](https://docs.example.com/guide)", *example.com*
+Slow: https://example.com/never
+
+
+## recipes: plain markdown links
+Read [Getting started](https://docs.example.com/guide) first.
+
+## recipes: keep the address visible
+Read Getting started (<https://docs.example.com/guide>) first.
+
+## recipes: a reference-style list at the end
+Read [Getting started][https://docs.example.com/guide] and [Bespin][https://en.wikipedia.org/wiki/Bespin].
+
+[https://docs.example.com/guide]: https://docs.example.com/guide
+[https://en.wikipedia.org/wiki/Bespin]: https://en.wikipedia.org/wiki/Bespin
+
+## recipes: HTTPS_PROXY without NODE_USE_ENV_PROXY
+Source: https://en.wikipedia.org/wiki/Bespin
+
+## recipes: NODE_USE_ENV_PROXY=1 HTTPS_PROXY=<proxy> node proxy.mjs
+Source: https://en.wikipedia.org/wiki/Bespin
+
+## recipes: what the proxy received
+nothing
+
+## recipes: undici version
+7.30.0
+
+## recipes: node --import ./use-proxy.mjs proxy.mjs (undici EnvHttpProxyAgent)
+Source: "[Bespin](https://en.wikipedia.org/wiki/Bespin)", *wikipedia.org*
+
+## recipes: every markdown file in a folder, in place
+A: "[Example Domain](https://example.com/)", *example.com*
+
+B: "[Getting started](https://docs.example.com/guide)", *example.com*
+
+## recipes: the loop, as written
+for file in docs/*.md; do
+  markdown-plain-link-replacer -i "$file" > "$file.tmp" && mv "$file.tmp" "$file"
+done
+cat docs/*.md
+
+## v1.1.16: installed
+markdown-plain-link-replacer@1.1.16
+
+## v1.1.16: examples with the callback (JSON strings)
+require() keys: replacePlainLinks
+"Source: https://en.wikipedia.org/wiki/Bespin" => "Source: \"[Bespin](https://en.wikipedia.org/wiki/Bespin)\", *wikipedia.org*"
+"  http://starwars.wikia.com/wiki/Bespin  " => "  [Bespin](http://starwars.wikia.com/wiki/Bespin) from wikia.com  "
+"See https://docs.example.com/guide." => "See https://docs.example.com/guide."
+"Release: https://example.com/colon" => "Release: \"[version 2](https://example.com/colon)\", *example.com*"
+"Tom: https://example.com/amp" => "Tom: \"[Tom &amp; Jerry](https://example.com/amp)\", *example.com*"
+"Tricky: https://example.com/tricky" => "Tricky: \"[Array[0] *star* _under_ `tick`](https://example.com/tricky)\", *example.com*"
+"Tom &amp; Jerry, see https://example.com/" => "Tom & Jerry, see \"[Example Domain](https://example.com/)\", *example.com*"
+"`https://example.com/`" => "`\"[Page](https://example.com/`)\", *example.com*"
+
+## v1.1.16: cli --help
+exit 0
+
+  Script to replace a text link (ie http://whatever) with the title at the links webpage in markdown.
+
+  Usage
+    $ markdown-plain-link-replacer "<markdown>"
+
+  Example
+    $ markdown-plain-link-replacer "  http://starwars.wikia.com/wiki/Bespin  "
+
+## v1.1.16: cli -h
+exit 0
+
+## v1.1.16: cli --version
+exit 0
+1.1.16
+
+## v1.1.16: cli Source: https://example.com
+exit 0
+Source: "[Example Domain](https://example.com)", *example.com*
+
+## v1.1.16: cli www.example.com/page
+exit 1
+
+Error: Invalid url
+
+## v1.1.16: cli http://192.0.2.10/page
+exit 1
+
+TypeError: Cannot read properties of null (reading 'domain')
+
+## golden: the copies patched for 2.0.0
+capture: bin path, dependency lookup, proxy agent; fixture server: CONNECT to port 80 served in plain HTTP
+
+## golden: 1.1.16 installed today against test/golden/1.1.16.json
+markdown-plain-link-replacer@1.1.16; dependencies get-title-at-url@1.1.8, is-an-image-url@1.0.4, replace-string-at-position@1.0.4, url-regex@4.1.1, parse-domain@0.2.1, hogan.js@3.0.2, he@1.1.1, bluebird@3.5.5, array-iterate@1.1.4, is-url@1.2.4, meow@3.7.0, request@2.88.2, article-title@2.0.0, is-image@3.1.0
+154 calls: 154 with the same answer, 0 more the same once link titles are masked, 0 different; 154 with the same timing (callback before or after the call returns); 154 with the same requests in the same order, 0 more with the same set; 154 identical in every recorded detail
+18 command line runs: 18 identical (exit code, stdout, the error line), 0 more once link titles are masked
+answers that differ (titles masked):
+command line runs that differ (titles masked):
+requests that differ:
+
+## golden: 2.0.0 against test/golden/1.1.16.json (the copies patched as above)
+markdown-plain-link-replacer@2.0.0; dependencies get-title-at-url@3.0.0, is-an-image-url@2.0.0, replace-string-at-position@2.0.0
+154 calls: 54 with the same answer, 55 more the same once link titles are masked, 45 different; 145 with the same timing (callback before or after the call returns); 116 with the same requests in the same order, 10 more with the same set; 17 identical in every recorded detail
+18 command line runs: 3 identical (exit code, stdout, the error line), 6 more once link titles are masked
+answers that differ (titles masked):
+no arguments: 1.1.16.json throws TypeError: callback is not a function, now returns {}
+no callback, no links: 1.1.16.json  unhandled TypeError, now returns {}
+no callback, a link: 1.1.16.json  unhandled TypeError, now returns {}
+callback a string: 1.1.16.json  unhandled TypeError, now throws TypeError: the second argument must be a callback or an options object, not "not a function"
+callback that throws: 1.1.16.json ["\"[Page](http://www.example.com/page)\", *example.com*"] unhandled Error, now ["\"[Page /page](http://www.example.com/page)\", *example.com*"] uncaught Error
+callback that throws, no links: 1.1.16.json ["plain text"] unhandled Error, now ["plain text"] uncaught Error
+link followed by a period: 1.1.16.json ["See http://www.example.com/page."], now ["See \"[Page /page](http://www.example.com/page)\", *example.com*."]
+link followed by three periods: 1.1.16.json ["See http://www.example.com/page..."], now ["See \"[Page /page](http://www.example.com/page)\", *example.com*..."]
+link followed by a comma: 1.1.16.json ["See \"[Page](http://www.example.com/page,)\", *example.com* then more."], now ["See \"[Page /page](http://www.example.com/page)\", *example.com*, then more."]
+link followed by a semicolon: 1.1.16.json ["See \"[Page](http://www.example.com/page;)\", *example.com* then more."], now ["See \"[Page /page](http://www.example.com/page)\", *example.com*; then more."]
+link followed by a question mark: 1.1.16.json ["Have you seen \"[Page](http://www.example.com/page?)\", *example.com*"], now ["Have you seen \"[Page /page](http://www.example.com/page)\", *example.com*?"]
+link followed by an exclamation mark: 1.1.16.json ["Look: \"[Page](http://www.example.com/page!)\", *example.com*"], now ["Look: \"[Page /page](http://www.example.com/page)\", *example.com*!"]
+link in square brackets: 1.1.16.json ["[\"[Page](http://www.example.com/page])\", *example.com*"], now ["[\"[Page /page](http://www.example.com/page)\", *example.com*]"]
+link in angle brackets (autolink): 1.1.16.json ["<\"[Page](http://www.example.com/page&gt;)\", *example.com*"], now ["<http://www.example.com/page>"]
+link in single quotes: 1.1.16.json ["'\"[Page](http://www.example.com/page&#39;)\", *example.com*"], now ["'\"[Page /page](http://www.example.com/page)\", *example.com*'"]
+link in backticks (code span): 1.1.16.json ["`\"[Page](http://www.example.com/page`)\", *example.com*"], now ["`http://www.example.com/page`"]
+link in a fenced code block: 1.1.16.json ["```\n\"[Page](http://www.example.com/page)\", *example.com*\n```"], now ["```\nhttp://www.example.com/page\n```"]
+link in an indented code block: 1.1.16.json ["Text\n\n    \"[Page](http://www.example.com/page)\", *example.com*\n"], now ["Text\n\n    http://www.example.com/page\n"]
+link with a query string: 1.1.16.json ["\"[Page](http://www.example.com/page?a=1&amp;b=2)\", *example.com*"], now ["\"[Page /page](http://www.example.com/page?a=1&b=2)\", *example.com*"]
+link with user info: 1.1.16.json ["\"[Page](http://user:pass@www.example.com/page)\", *example.com*"], now ["http://user:pass@www.example.com/page"]
+upper-case scheme and host: 1.1.16.json ["\"[Page](HTTP://WWW.EXAMPLE.COM/Page)\", *example.com*"], now ["\"[Page /Page](HTTP://WWW.EXAMPLE.COM/Page)\", *example.com*"]
+protocol-relative link: 1.1.16.json  unhandled TypeError, now ["See //www.example.com/page here"]
+www link without a scheme: 1.1.16.json  uncaught Error, now ["See www.example.com/page here"]
+link with parentheses in the path, in parentheses: 1.1.16.json ["(\"[Page](https://en.wikipedia.org/wiki/Bent_(band)))\", *wikipedia.org*"], now ["(\"[Page /wiki/Bent\\_(band)](https://en.wikipedia.org/wiki/Bent_(band))\", *wikipedia.org*)"]
+link with a non-ASCII path: 1.1.16.json ["http://www.example.com/café"], now ["\"[Page /café](http://www.example.com/café)\", *example.com*"]
+link with an emoji in the path: 1.1.16.json ["http://www.example.com/😀"], now ["\"[Page /😀](http://www.example.com/😀)\", *example.com*"]
+IPv4 host: 1.1.16.json  uncaught TypeError, now ["\"[Page /page](http://192.0.2.10/page)\", *192.0.2.10*"]
+localhost: 1.1.16.json  uncaught TypeError, now ["\"[Page /page](http://localhost/page)\", *localhost*"]
+unknown TLD: 1.1.16.json  uncaught TypeError, now ["\"[Page /page](http://www.example.notatld/page)\", *example.notatld*"]
+reference definition with two spaces: 1.1.16.json ["[1]:  \"[Page](http://www.example.com/page)\", *example.com*"], now ["[1]:  http://www.example.com/page"]
+reference definition without a space: 1.1.16.json ["[1]:\"[Page](http://www.example.com/page)\", *example.com*"], now ["[1]:http://www.example.com/page"]
+a link and the same link with a period: 1.1.16.json ["http://www.example.com/page. And \"[Page](http://www.example.com/page)\", *example.com*"], now ["\"[Page /page](http://www.example.com/page)\", *example.com*. And \"[Page /page](http://www.example.com/page)\", *example.com*"]
+title with markdown characters: 1.1.16.json ["\"[Array[0] (x) *star* _under_ `tick`](http://www.example.com/brackets)\", *example.com*"], now ["\"[Array\\[0\\] (x) \\*star\\* \\_under\\_ \\`tick\\`](http://www.example.com/brackets)\", *example.com*"]
+text/plain page: 1.1.16.json ["\"[Plain Text Title](http://www.example.com/plain)\", *example.com*"], now ["http://www.example.com/plain"]
+gzip page: 1.1.16.json ["http://www.example.com/gzip"], now ["\"[Gzipped Title](http://www.example.com/gzip)\", *example.com*"]
+title only inside svg: 1.1.16.json ["\"[Svg Title](http://www.example.com/svg-title)\", *example.com*"], now ["http://www.example.com/svg-title"]
+entities in the text, no links: 1.1.16.json ["Tom & Jerry <3 © ©  ."], now ["Tom &amp; Jerry &lt;3 &copy; &#169; &nbsp;."]
+template: title only: 1.1.16.json ["Page"], now ["Page /page"]
+template: unknown tag: 1.1.16.json ["|Page"], now ["|Page /page"]
+template: unclosed tag: 1.1.16.json ["title"], now throws TypeError: template: the tag at position 0 is not closed with }}
+template: unclosed section: 1.1.16.json  unhandled Error, now throws TypeError: template: the section {{#title}} is not closed
+template: a number: 1.1.16.json [""], now throws TypeError: template must be a string, not 42
+template: an object: 1.1.16.json [""], now throws TypeError: template must be a string, not an object
+template with dollar signs: 1.1.16.json ["$& Page $1"], now ["$& Page /page $1"]
+server never answers (no callback within 25 s): 1.1.16.json no callback, now ["http://www.example.com/never"]
+command line runs that differ (titles masked):
+no arguments: 1.1.16.json exit 0 "undefined\n" , now exit null ""
+--help: 1.1.16.json exit 0 "\n  Script to replace a text link (ie http://whatever) with the title , now exit 0 "\n  Replace plain links in markdown with titled links: each page is r
+-h: 1.1.16.json exit 0 "" , now exit 0 "\n  Replace plain links in markdown with titled links: each page is r
+--version: 1.1.16.json exit 0 "1.1.16\n" , now exit 0 "2.0.0\n"
+-i missing file: 1.1.16.json exit 0 "undefined\n" , now exit 1 "" error: cannot read no-such-file.md: ENOENT
+-i without a value: 1.1.16.json exit 1 "" TypeError [ERR_INVALID_ARG_TYPE]: The "path" argument must be of type string or an instance of Buffer or URL. Received type boolean (true), now exit 1 "" error: Option '-i, --input <value>' argument missing
+an unknown flag: 1.1.16.json exit 0 "undefined\n" , now exit 1 "" error: Unknown option '--foo'. To specify a positional argument starting with a '-', place it at the end of the command after '--', as in '-- "--foo"
+www link without a scheme (crashes): 1.1.16.json exit 1 "" Error: Invalid url, now exit 0 "www.example.com/page\n"
+IPv4 host (crashes): 1.1.16.json exit 1 "" TypeError: Cannot read properties of null (reading 'domain'), now exit 0 "\"[Page /page](http://192.0.2.10/page)\", *192.0.2.10*\n"
+requests that differ:
+callback a string: 1.1.16.json ["GET http://www.example.com/page","GET http://www.example.com/page"], now []
+link followed by a period: 1.1.16.json ["GET http://www.example.com/page"], now ["GET http://www.example.com/page","GET http://www.example.com/page"]
+link followed by three periods: 1.1.16.json ["GET http://www.example.com/page"], now ["GET http://www.example.com/page","GET http://www.example.com/page"]
+link followed by a comma: 1.1.16.json ["GET http://www.example.com/page,","GET http://www.example.com/page,"], now ["GET http://www.example.com/page","GET http://www.example.com/page"]
+link followed by a semicolon: 1.1.16.json ["GET http://www.example.com/page;","GET http://www.example.com/page;"], now ["GET http://www.example.com/page","GET http://www.example.com/page"]
+link followed by a question mark: 1.1.16.json ["GET http://www.example.com/page?","GET http://www.example.com/page?"], now ["GET http://www.example.com/page","GET http://www.example.com/page"]
+link followed by an exclamation mark: 1.1.16.json ["GET http://www.example.com/page!","GET http://www.example.com/page!"], now ["GET http://www.example.com/page","GET http://www.example.com/page"]
+link in square brackets: 1.1.16.json ["GET http://www.example.com/page]","GET http://www.example.com/page]"], now ["GET http://www.example.com/page","GET http://www.example.com/page"]
+link in angle brackets (autolink): 1.1.16.json ["GET http://www.example.com/page%3E","GET http://www.example.com/page%3E"], now []
+link in double quotes: 1.1.16.json ["GET http://www.example.com/page"], now []
+link in single quotes: 1.1.16.json ["GET http://www.example.com/page%27","GET http://www.example.com/page%27"], now ["GET http://www.example.com/page","GET http://www.example.com/page"]
+link in backticks (code span): 1.1.16.json ["GET http://www.example.com/page%60","GET http://www.example.com/page%60"], now []
+link in a fenced code block: 1.1.16.json ["GET http://www.example.com/page","GET http://www.example.com/page"], now []
+link in an indented code block: 1.1.16.json ["GET http://www.example.com/page","GET http://www.example.com/page"], now []
+link in an HTML attribute: 1.1.16.json ["GET http://www.example.com/page"], now []
+link with user info: 1.1.16.json ["GET http://www.example.com/page","GET http://www.example.com/page"], now []
+link with parentheses in the path, in parentheses: 1.1.16.json ["GET https://en.wikipedia.org/wiki/Bent_(band))","GET https://en.wikipedia.org/wiki/Bent_(band))"], now ["GET https://en.wikipedia.org/wiki/Bent_(band)","GET https://en.wikipedia.org/wiki/Bent_(band)"]
+link with a non-ASCII path: 1.1.16.json [], now ["GET http://www.example.com/caf%C3%A9","GET http://www.example.com/caf%C3%A9"]
+link with an emoji in the path: 1.1.16.json [], now ["GET http://www.example.com/%F0%9F%98%80","GET http://www.example.com/%F0%9F%98%80"]
+already a markdown link: 1.1.16.json ["GET http://www.example.com/page"], now []
+already a markdown link with a title: 1.1.16.json ["GET http://www.example.com/page"], now []
+already an image: 1.1.16.json ["GET http://www.example.com/page"], now []
+reference definition: 1.1.16.json ["GET http://www.example.com/page"], now []
+reference definition with two spaces: 1.1.16.json ["GET http://www.example.com/page","GET http://www.example.com/page"], now []
+reference definition without a space: 1.1.16.json ["GET http://www.example.com/page","GET http://www.example.com/page"], now []
+reference definition at the start of the text (position 3 check): 1.1.16.json ["GET http://www.example.com/page","GET http://www.example.com/page","GET http://www.example.com/page"], now ["GET http://www.example.com/page","GET http://www.example.com/page"]
+the default output fed back in: 1.1.16.json ["GET http://www.example.com/page"], now []
+the same link plain and linked: 1.1.16.json ["GET http://www.example.com/page","GET http://www.example.com/page","GET http://www.example.com/page"], now ["GET http://www.example.com/page","GET http://www.example.com/page"]
+the same link linked then plain: 1.1.16.json ["GET http://www.example.com/page","GET http://www.example.com/page","GET http://www.example.com/page"], now ["GET http://www.example.com/page","GET http://www.example.com/page"]
+the same link twice: 1.1.16.json ["GET http://www.example.com/page","GET http://www.example.com/page","GET http://www.example.com/page"], now ["GET http://www.example.com/page","GET http://www.example.com/page"]
+the same link three times: 1.1.16.json ["GET http://www.example.com/page","GET http://www.example.com/page","GET http://www.example.com/page","GET http://www.example.com/page"], now ["GET http://www.example.com/page","GET http://www.example.com/page"]
+a link and the same link with a period: 1.1.16.json ["GET http://www.example.com/page","GET http://www.example.com/page","GET http://www.example.com/page"], now ["GET http://www.example.com/page","GET http://www.example.com/page"]
+image content type in upper case: 1.1.16.json ["GET http://www.example.com/img-upper","GET http://www.example.com/img-upper"], now ["GET http://www.example.com/img-upper"]
+redirect loop: 1.1.16.json ["GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop"], now ["GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop","GET http://www.example.com/loop"]
+template: unclosed tag: 1.1.16.json ["GET http://www.example.com/page","GET http://www.example.com/page"], now []
+template: unclosed section: 1.1.16.json ["GET http://www.example.com/page"], now []
+template: a number: 1.1.16.json ["GET http://www.example.com/page","GET http://www.example.com/page"], now []
+template: an object: 1.1.16.json ["GET http://www.example.com/page","GET http://www.example.com/page"], now []
