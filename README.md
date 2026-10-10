@@ -128,6 +128,10 @@ The package requests every http and https link it finds in the text it is given,
 
 The [changelog](CHANGELOG.md) lists every change.
 
+## Package page
+
+- npm: [markdown-plain-link-replacer](https://www.npmjs.com/package/markdown-plain-link-replacer)
+
 ## License
 
 MIT © [Mark Rogers](https://www.markdavidrogers.com)
