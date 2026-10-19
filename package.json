@@ -66,16 +66,16 @@
     "get-title-at-url": "^3.0.0",
     "is-an-image-url": "^2.0.0",
     "replace-string-at-position": "^2.0.0",
-    "tldts": "^7.4.16"
+    "tldts": "^7.4.18"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
     "@tsconfig/node-ts": "^23.6.4",
     "@tsconfig/node20": "^20.1.10",
-    "@types/node": "^24.19.1",
+    "@types/node": "^24.19.2",
     "c8": "^12.0.0",
     "publint": "^0.3.25",
-    "tsdown": "0.23.0",
+    "tsdown": "0.23.1",
     "typescript": "~6.0.3",
     "xo": "^5.0.1"
   },
