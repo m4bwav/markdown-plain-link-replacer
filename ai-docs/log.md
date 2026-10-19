@@ -77,3 +77,8 @@ Append-only. One line per operation: `## [YYYY-MM-DD] op | title` where op is on
 - Examples verified against the published 2.0.0 by the real host names through a local CONNECT proxy with a throwaway CA and TLS; Node 24 children through NODE_USE_ENV_PROXY=1, Node 20 through undici EnvHttpProxyAgent. Golden replay: 1.1.16 today 154/154 calls and 18/18 CLI runs identical; 2.0.0 with four patched copies, 54 same answer plus 55 title-only, 41 differences each a CHANGELOG line. npm test on an export: 400 tests, 396 pass, 4 skipped.
 - Found: the capture guard lets plain http through (net.connect passes an array; package-modernize L-124); README/help call a string the default template that is not; CHANGELOG says 164 golden calls (154); the CLI adds a trailing newline; next still points at the deprecated 2.0.0-beta.1. Not fixed: README and CHANGELOG ship in the package; dist-tags are Mark's.
 ## [2026-09-29] index | rebuilt (5 entries)
+
+## [2026-10-18] deps | Dependabot PRs and alert #2
+- Squash-merged Dependabot #18 (upload-artifact 7.0.2), #19 (download-artifact 8.0.2), #20 (setup-node 7.1.0), #21 (tldts 7.4.16, @types/node 24.19.1, publint 0.3.25); all CI green. No release cut.
+- #22: lockfile-only bump of dev-only source-map-js to 1.2.2 (GHSA-68fv-2mgg-jv7q, alert #2 high), merged; alert reads fixed.
+- Left open: alert #4 (katex < 0.18.2, low, dev-only via xo > @eslint/markdown > micromark-extension-math, which pins katex ^0.16). Fix needs an npm override past that range or an upstream release. npm audit also lists braces (no patched version; alert #3 auto-dismissed).
